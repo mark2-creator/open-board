@@ -1,5 +1,5 @@
 /* Open Board service worker: the app works offline after the first visit. */
-const VERSION = 'ob-v2';
+const VERSION = 'ob-v3';
 const CORE = ['./', 'index.html', 'config.js', 'manifest.webmanifest', 'privacy.html', 'terms.html', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', (e) => {

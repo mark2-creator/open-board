@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
-:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+:root { --sa-t: env(safe-area-inset-top, 0px); --sa-b: env(safe-area-inset-bottom, 0px); --sa-l: env(safe-area-inset-left, 0px); --sa-r: env(safe-area-inset-right, 0px); padding-top: var(--sa-t); padding-bottom: var(--sa-b); }
 body { margin: 0; }
 [hidden] { display: none !important; }
 img { max-width: 100%; }
@@ -74,8 +74,8 @@ body {
   background: var(--bg);
   color: var(--fg);
   font: 16px/1.45 var(--font-b);
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-left: max(16px, var(--sa-l));
+  padding-right: max(16px, var(--sa-r));
   padding-block: 8px 32px;
   -webkit-text-size-adjust: 100%;
 }
@@ -94,7 +94,7 @@ p { margin: 0; }
 .icon-btn { width: 44px; height: 44px; border-radius: 12px; border: 0; background: transparent; display: grid; place-items: center; }
 .icon-btn:hover { background: var(--surface); }
 .icon-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-.top[data-home="1"] .icon-btn { visibility: hidden; }
+.top[data-home="1"] #back { visibility: hidden; }
 
 /* buttons */
 .btn {
@@ -255,7 +255,7 @@ p { margin: 0; }
 .pieces-tabs button[aria-checked="true"] { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
 .pieces-tabs .pc { width: 86%; height: 86%; }
 
-.toast { position: fixed; left: 50%; bottom: max(20px, env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-weight: 700; z-index: 90; max-width: calc(100vw - 32px); text-align: center; }
+.toast { position: fixed; left: 50%; bottom: calc(max(8px, var(--sa-b)) + 12px); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-weight: 700; z-index: 90; max-width: calc(100vw - 32px); text-align: center; }
 .toast[hidden] { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .sq.shake, .status[data-k="wait"]::before { animation: none; }
@@ -281,6 +281,91 @@ p { margin: 0; }
 .foot { margin: 22px 0 0; font-size: 14px; color: var(--muted); }
 .foot a { color: inherit; font-weight: 700; }
 
+/* ---------- 1.1: daily puzzle, progress, settings, review, online extras ---------- */
+.today { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr)); gap: 12px; margin-bottom: 12px; }
+.tcard { display: flex; align-items: center; gap: 14px; padding: 14px; width: 100%; text-align: left; background: var(--raised); border: 1.5px solid var(--line); border-radius: 14px; min-height: 84px; }
+.tcard:hover { border-color: var(--accent); }
+.tcard b { display: block; font: 700 18px var(--font-d); }
+.tcard small { display: block; color: var(--muted); font-size: 14px; }
+.tcard > span:last-child { min-width: 0; }
+.tcard .big { width: 60px; height: 60px; border-radius: 12px; flex: none; display: grid; place-content: center; text-align: center; font: 800 22px/1 var(--font-d); background: var(--accent-soft); color: var(--accent); }
+.tcard .big small { font: 700 10px/1.3 var(--font-b); color: inherit; letter-spacing: 0.06em; text-transform: uppercase; }
+.tcard.hot { border-color: var(--gold); }
+.tcard.hot .big { background: var(--gold-soft); color: var(--fg); }
+.tcard.done .big { background: var(--accent); color: var(--accent-fg); }
+.path { margin-bottom: 12px; }
+.path h3 { font-size: 20px; }
+.path ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.path li button { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 8px 10px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface); text-align: left; }
+.path li b { display: block; font-size: 15px; }
+.path li small { display: block; font-size: 13px; }
+.path li .ck { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line); flex: none; display: grid; place-items: center; }
+.path li.ok .ck { background: var(--ok); border-color: var(--ok); }
+.path li.ok .ck::after { content: ''; width: 10px; height: 6px; border: solid #fff; border-width: 0 0 2.5px 2.5px; transform: translateY(-1px) rotate(-45deg); }
+.path li.ok b { text-decoration: line-through; color: var(--muted); }
+.bar, .progress { height: 6px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.bar i, .progress i { display: block; height: 100%; background: var(--accent); border-radius: inherit; transition: width 0.2s; }
+.linkish { border: 0; background: none; color: var(--muted); font-weight: 700; text-decoration: underline; padding: 6px 0; justify-self: start; min-height: 36px; }
+.modal { position: fixed; inset: 0; z-index: 80; background: rgba(8, 16, 20, 0.58); display: grid; align-items: end; justify-items: center; }
+.modal[hidden] { display: none; }
+.sheet { background: var(--raised); width: min(100%, 520px); border-radius: 18px 18px 0 0; padding: 20px max(16px, var(--sa-r)) calc(20px + var(--sa-b)) max(16px, var(--sa-l)); display: grid; gap: 12px; max-height: 90vh; overflow: auto; box-shadow: 0 -8px 30px rgba(0,0,0,0.25); }
+@media (min-width: 600px) { .modal { align-items: center; } .sheet { border-radius: 18px; padding-bottom: 20px; } }
+.sheet h3 { font-size: 24px; }
+.sheet .row { display: grid; gap: 8px; }
+.spin { width: 40px; height: 40px; border-radius: 50%; border: 4px solid var(--line); border-top-color: var(--accent); animation: spin 0.9s linear infinite; justify-self: center; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.set-row { display: flex; align-items: center; gap: 12px; min-height: 52px; }
+.set-row > span { flex: 1; min-width: 0; }
+.set-row b { display: block; }
+.set-row small { color: var(--muted); font-size: 14px; display: block; }
+.switch { width: 52px; height: 32px; border-radius: 99px; border: 0; background: var(--line); position: relative; flex: none; padding: 0; }
+.switch::after { content: ''; position: absolute; left: 4px; top: 4px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.3); transition: transform 0.15s; }
+.switch[aria-checked="true"] { background: var(--accent); }
+.switch[aria-checked="true"]::after { transform: translateX(20px); }
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+.swatches button { border: 1.5px solid var(--line); border-radius: 12px; background: var(--surface); padding: 8px; display: grid; gap: 6px; align-content: start; text-align: center; font-size: 13px; font-weight: 700; }
+.swatches button[aria-checked="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.swatches button[disabled] { cursor: default; }
+.swatches button[disabled] .mini, .swatches button[disabled] .pcs { opacity: 0.45; }
+.swatches .mini { display: grid; grid-template-columns: repeat(4, 1fr); border-radius: 6px; overflow: hidden; aspect-ratio: 2; }
+.swatches .lock { font-weight: 400; font-size: 12px; color: var(--muted); }
+.pcs { display: flex; justify-content: center; border-radius: 6px; padding: 2px; }
+.pcs .pc { width: 34px; height: 34px; }
+.statgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.stat { background: var(--raised); border: 1.5px solid var(--line); border-radius: 12px; padding: 12px; }
+.stat b { display: block; font: 800 26px/1.15 var(--font-d); }
+.stat small { color: var(--muted); font-size: 13px; }
+.lvtable { width: 100%; border-collapse: collapse; font-size: 15px; }
+.lvtable th, .lvtable td { padding: 8px 6px; text-align: right; border-bottom: 1px solid var(--line); }
+.lvtable th:first-child, .lvtable td:first-child { text-align: left; }
+.lvtable th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.achs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.ach { padding: 10px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); display: grid; gap: 2px; align-content: start; }
+.ach b { font: 700 15px var(--font-d); }
+.ach small { color: var(--muted); font-size: 13px; }
+.ach .ic { font-size: 22px; filter: grayscale(1); opacity: 0.45; }
+.ach.on { border-color: var(--gold); }
+.ach.on .ic { filter: none; opacity: 1; }
+.ocard .rate { font: 700 18px var(--font-d); }
+.ocard .rate .up { color: var(--ok); }
+.ocard .rate .down { color: var(--danger); }
+.ach-pill { padding: 8px 10px; border-radius: 10px; background: var(--gold-soft); font-weight: 700; font-size: 14px; }
+.ocard .linkish { justify-self: center; }
+.review { padding: 12px; border-radius: 10px; background: var(--surface); border: 1.5px solid var(--line); display: grid; gap: 8px; }
+.review .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.counts, .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.counts span, .chip { font: 600 13px var(--font-m); padding: 4px 9px; border-radius: 99px; background: var(--raised); border: 1.5px solid var(--line); }
+.chip { min-height: 34px; }
+.chip.cur { border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold); }
+.k3 { color: var(--danger); }
+.k2 { color: #C46A12; }
+:root[data-theme="dark"] .k2 { color: #F0A35A; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .k2 { color: #F0A35A; } }
+.clock { font: 600 16px var(--font-m); padding: 2px 8px; border-radius: 8px; background: var(--surface); border: 1.5px solid var(--line); margin-left: 8px; flex: none; }
+.clock.run { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.clock.low.run { background: var(--danger); border-color: var(--danger); color: #fff; }
+.notice a { color: var(--accent); font-weight: 700; }
+
 </style>
 
 <script src="config.js"></script>
@@ -290,6 +375,7 @@ p { margin: 0; }
   <header class="top" id="top" data-home="1">
     <button class="icon-btn" id="back" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
     <h2 id="title"></h2>
+    <button class="icon-btn" id="settings-btn" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
   </header>
 
   <section class="view" id="v-home">
@@ -299,6 +385,8 @@ p { margin: 0; }
       <p class="tagline">Play the computer, a friend across the table, or someone online. Learn as you go.</p>
     </div>
     <div id="resume"></div>
+    <div class="today" id="today"></div>
+    <div id="path"></div>
     <div class="modes" id="modes"></div>
     <p class="foot"><a href="privacy.html">Privacy policy</a> · <a href="terms.html">Terms of service</a><br>© 2026 AHUMUZA FITLIFE SOLUTIONS</p>
   </section>
@@ -322,19 +410,36 @@ p { margin: 0; }
   <section class="view" id="v-online" hidden>
     <div class="stack">
       <div class="notice" id="on-note"></div>
+      <div class="notice" id="on-app" hidden></div>
       <div class="card" id="on-resume" hidden>
         <div><b id="on-resume-t"></b><div class="muted" style="font-size:14px">You have a game in progress.</div></div>
         <button class="btn primary wide" id="on-resume-btn">Resume game</button>
       </div>
+      <div class="card" id="on-qm-card" hidden>
+        <div><h3>Quick match</h3><p class="muted" style="font-size:15px">Play someone who is looking for a game right now.</p></div>
+        <div class="label">Clock</div>
+        <div class="seg" role="radiogroup" aria-label="Quick match clock" id="seg-qm-tc">
+          <button role="radio" aria-checked="false" data-v="5">5 min</button>
+          <button role="radio" aria-checked="true" data-v="10">10 min</button>
+          <button role="radio" aria-checked="false" data-v="0">No clock</button>
+        </div>
+        <button class="btn primary wide" id="on-qm">Find an opponent</button>
+      </div>
       <div class="card">
-        <h3>Create a game</h3>
+        <h3>Play a friend</h3>
         <div class="label">You play</div>
         <div class="seg" role="radiogroup" aria-label="Your color online" id="seg-on-color">
           <button role="radio" aria-checked="true" data-v="0">White</button>
           <button role="radio" aria-checked="false" data-v="1">Black</button>
           <button role="radio" aria-checked="false" data-v="r">Random</button>
         </div>
-        <button class="btn primary wide" id="on-create">Create game</button>
+        <div class="label">Clock</div>
+        <div class="seg" role="radiogroup" aria-label="Clock for a friend game" id="seg-on-tc">
+          <button role="radio" aria-checked="true" data-v="0">No clock</button>
+          <button role="radio" aria-checked="false" data-v="10">10 min</button>
+          <button role="radio" aria-checked="false" data-v="5">5 min</button>
+        </div>
+        <button class="btn primary wide" id="on-create">Create game and invite</button>
       </div>
       <div class="card">
         <h3>Join a game</h3>
@@ -385,8 +490,17 @@ p { margin: 0; }
       <div class="study-panel" id="study-panel"></div>
     </div>
   </section>
+
+  <section class="view" id="v-settings" hidden>
+    <div class="stack" id="settings-body"></div>
+  </section>
+
+  <section class="view" id="v-stats" hidden>
+    <div class="stack" id="stats-body" style="max-width:720px"></div>
+  </section>
 </div>
 <div class="toast" id="toast" role="status" hidden></div>
+<div class="modal" id="modal" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
 
 <script id="s-core">
 /* Chess rules core: 0x88 board, legal move generation, SAN, game status. */
@@ -1173,7 +1287,33 @@ var Engine = (function () {
     return { move: C.uci(res.move), score: res.score, depth: res.depth };
   }
 
-  return { LEVELS: LEVELS, think: think, thinkGame: thinkGame, evaluate: evaluate };
+  // Score every position of a game for the review screen: s is centipawns for the side to move, b the best move (uci).
+  function analyze(startFen, moves, depth, time, onProgress) {
+    var pos = C.Position.fromFEN(startFen), out = [], opts = { depth: depth || 4, noise: 0, time: time || 250 };
+    for (var i = 0; i <= moves.length; i++) {
+      var st = C.status(pos), r;
+      if (st.over) r = { s: st.reason === 'checkmate' ? -MATE : 0, b: null, n: 0 };
+      else {
+        var lm = pos.legalMoves();
+        if (lm.length === 1) {
+          // think() does not search a forced move, so score the position after it instead
+          pos.make(lm[0]);
+          var st1 = C.status(pos), sub = st1.over ? null : think(pos, opts);
+          pos.unmake();
+          r = { s: st1.over ? (st1.reason === 'checkmate' ? MATE : 0) : -(sub ? sub.score : 0), b: C.uci(lm[0]), n: 1 };
+        } else {
+          var res = think(pos, opts);
+          r = { s: res ? res.score : 0, b: res && res.move ? C.uci(res.move) : null, n: lm.length };
+        }
+      }
+      out.push(r);
+      if (onProgress) onProgress(i);
+      if (i < moves.length) { var m = C.parseUci(pos, moves[i]); if (!m) break; pos.make(m); }
+    }
+    return out;
+  }
+
+  return { LEVELS: LEVELS, think: think, thinkGame: thinkGame, evaluate: evaluate, analyze: analyze };
 })();
 
 </script>
@@ -1200,6 +1340,11 @@ var PUZZLES = [
   { n: 2, t: 'Pawn check', fen: '8/4k3/6R1/2NP4/p1BP2p1/p5P1/5P2/1K6 w - - 0 68' },
   { n: 2, t: 'Rook and queen', fen: '2Q5/7R/6k1/7p/5p1P/3P4/5P2/5K2 w - - 2 60' }
 ];
+
+/* Training and daily puzzles: checkmates from the Lichess puzzle database (CC0, database.lichess.org).
+   One per line: FEN;rating;mate-in;tag. The position is the one the solver faces. */
+var PUZZLE_TAGS = ["Back-rank mate", "Smothered mate", "Arabian mate", "Anastasia's mate", "Boden's mate", "Two-bishop mate", "Dovetail mate", "Hook mate", "Opera mate", "Pillsbury's mate", "Epaulette mate", "Morphy's mate", "Triangle mate", "Corner mate", "Kill-box mate", "Vukovi\u0107's mate", "Balestra mate", "Blind-swine mate", "Double check", "Discovered check", "Promote to mate", "Underpromotion", "Sacrifice to mate", "Kingside attack", "Queenside attack", "Opening trap", "Endgame mate", "Middlegame mate", "Checkmate"];
+var PUZZLE_LIB = 'r4rk1/1p3p1p/p2N2p1/3pn3/1P2n1Pq/P2BP2P/1BP1K3/R2Q3R b - - 2 18;1302;1;27\nr3N2k/pb3pnp/1p1p2p1/2b2P2/6P1/2BB1R2/PPP4P/R6K b - - 2 21;834;1;5\nr2qkbnr/pbpnp3/1p1p1pp1/7Q/1PP5/4P3/PB1P1PPP/RN2K1NR w KQkq - 0 8;755;1;25\nr1bqk1r1/pp3p2/2n1pQp1/3pPnNp/2pP3P/P1P5/2P2PP1/R1B1KB1R w KQq - 8 13;827;1;27\nr1b2bnr/pp3ppp/4pk2/1BQ5/8/5qP1/PP3P1P/RNB1K2R w KQ - 4 11;1377;1;25\nr2qk2r/pp1bnp1p/3p1bpB/1NpP4/2P2P2/PQ6/1P2K1PP/R6R w kq - 1 18;960;1;27\n2r1r1k1/5ppp/p7/3R4/P7/1R2B3/1b3PPP/6K1 b - - 0 27;1070;2;0\n5R2/p5r1/4q2k/2p3p1/6p1/4p3/PPQ3P1/2K5 w - - 4 35;734;2;26\n2kr1b1r/pb3ppp/1p2p3/8/2Bq1B2/2Q5/PPP2PPP/5RK1 w - - 0 18;992;1;18\nr2k4/p2nRp2/2pQbp2/1p3Bq1/3P2P1/P1P4P/1P6/6K1 w - - 9 30;1907;2;27\n6k1/r4Npp/4p3/P1p1P3/3p1QPq/3b3P/2r2RK1/R7 w - - 0 31;1196;2;22\nrr4k1/p1p2ppp/2K5/3P1b2/n2N4/4p3/PP2N1PP/4RB1R b - - 4 21;983;2;8\n4r1kB/pbp2p2/1pqP1Q1p/P4B2/6p1/2P5/P5PP/RN4RK b - - 8 24;1398;2;22\n7k/6b1/p4rQ1/1pq5/2p2p2/2P5/PPB4P/5K2 w - - 0 34;973;1;26\n8/5p2/6k1/7p/1p3P1K/1Bb4P/P7/6B1 b - - 0 42;1331;2;26\n8/p2Q2pk/1ppp4/3Pp3/2P1Pn1B/1P5P/P5P1/3q1N1K b - - 0 38;849;2;23\n8/1p2R3/6rk/5R2/1r4P1/8/p5P1/6K1 w - - 0 52;1096;1;26\n5R2/p1r3bk/1p2B2p/6p1/2p5/3p2PP/P5P1/3K4 w - - 2 49;1254;1;26\n5k2/7p/5P2/p2R3B/P2p4/7P/6K1/1r1q4 w - - 0 35;982;1;9\nr2q1r1k/pp2pB2/2p3Pb/3pP3/1n1P2b1/2N5/PPP5/R1B1K2R w KQ - 1 19;1140;2;9\nr4rk1/2p2ppp/8/1b2QN2/1b1p2P1/1P1P3P/2P2P2/B1KR3R b - - 0 23;1409;2;24\n5r1k/pp2q1p1/2pp2Qp/4p3/4P3/P2P3P/BPP5/1K3R2 b - - 0 23;596;1;0\n4r1k1/ppq2p1p/2p3pB/3n4/3PQ3/P7/1P3PPP/R5K1 w - - 1 22;479;1;23\nr4k2/pp3p2/7p/2pp2rQ/4b3/2P1q1P1/PP2B1PP/R4R1K w - - 2 26;984;1;27\n5rq1/p1pp4/1pn1k1p1/4PrB1/2PP4/2P5/P1K5/6RQ w - - 0 25;1563;1;27\n1Q3b1r/p1pkpppp/b7/8/2qP4/8/PP1B1PPP/2R1K1NR b K - 2 12;1552;1;27\nr4kr1/p6p/2Q3pP/2pR1p2/8/nP3P2/1KP3P1/4q1NR b - - 4 25;1045;2;27\n1k2rb1r/ppp1q2p/3p2p1/3Q2P1/B5n1/N1P5/PP1B1PP1/R4K1R b - - 3 19;1150;2;27\n6k1/5p1p/5Pp1/Q1prp1q1/2PnP3/8/5RP1/6K1 w - - 0 31;1089;2;26\nr5n1/ppp3Q1/2k1pp2/3p2p1/1qnP4/1PN2N2/P1P2PPP/2KR3R b - - 0 17;969;2;24\n8/8/2Q3pk/8/4Pp2/5P2/PPP1q2r/2K3R1 b - - 0 46;1229;2;26\n4r3/2Q5/6p1/3P2P1/1k6/1P1q4/P7/K1R1r3 w - - 1 50;1771;1;26\n3r3Q/1b2n1p1/p1q2rk1/1p2p3/4Pp2/1B3P1P/P7/3R3K w - - 0 34;1451;1;9\n4k3/p4r1Q/1n2pB2/nP1pP3/P7/2q4P/2pr1PP1/R5K1 w - - 0 32;1392;2;27\n6k1/pp2Q3/1n4p1/8/3R1K1p/4PP1P/P1q5/8 b - - 14 42;1033;1;26\n1r5k/5Rp1/2bP3p/1p6/8/2Q2PnP/5b1K/4q3 w - - 0 37;756;1;27\nr1bq3r/pp1pb1p1/2n1k2p/3pP3/2pP3P/5QP1/PPP2P2/R1B1KB1R w KQ - 1 12;1364;1;25\n5rkb/pp3p1p/6bP/q2Np1R1/3p4/3P1KP1/PP4r1/R7 w - - 0 26;1266;1;27\n7r/p1pR2p1/1b4k1/4PnP1/7p/1P6/PBP3PP/R6K b - - 0 22;971;2;22\n6rk/p5p1/2R4p/8/3Q4/6P1/q4PPK/8 w - - 2 41;1098;1;26\nr3k2r/pp4p1/2P1p3/P3Pp2/3P3b/1P2PB2/6PK/R1Q2R2 b kq - 0 28;1388;2;9\n6rr/ppNk1p2/2nbp3/8/3P4/2PB1N2/PP1BQP2/R3RK2 b - - 2 23;837;2;27\n4k3/1p4Q1/2p1Np1p/3pnP2/p6P/P1Pn2PK/1P5N/7q b - - 0 48;1124;1;26\n8/1p3k1p/1pb1qP2/2p2p2/1PPp1Q2/P2P2PP/7K/1R6 b - - 0 36;928;2;26\n2r4k/6p1/7p/5b2/2r1p1q1/P3QpP1/1PPB1P1K/N2R3R b - - 2 38;958;2;27\nr5rk/2p2pp1/3p3p/p2P2N1/4PKQ1/2q5/8/6R1 w - - 6 48;1451;2;26\nrn1R4/5pkp/p5p1/1pp1p3/8/2P1NbN1/PP3P1q/4K1R1 w - - 5 28;1694;2;10\nr3r1k1/pp1n1pp1/2p1p3/2P3q1/3PQ3/3BP3/PP3P2/R3K2R w KQ - 0 17;1667;2;22\n2r3k1/6pp/p7/7Q/3nN3/2PP2P1/PP1R3P/4K1Bq b - - 0 33;1406;1;27\nr3qrk1/pp2b2p/4Nn1Q/2pp1p2/3P4/2PB4/P1P3PP/R1B3K1 w - - 2 17;925;1;27\n1r5k/1Q3R1p/3q2p1/5n2/5p2/2P2P1P/6PK/8 w - - 3 35;1419;2;12\n4R3/p4p1k/6pp/3P2q1/4Q3/6rP/PP3RPK/2r5 b - - 3 33;1459;2;22\nQ1Q5/5pk1/5b2/4N1p1/8/6PK/6n1/1q6 b - - 0 45;1485;2;26\nr1b1k2r/ppp1Pppp/2n1q3/6B1/8/4PN2/P3BKPP/R2R4 w kq - 4 13;935;2;20\n7R/4kr2/3p4/pp1P2P1/2q1r3/4Q3/PPP5/1K6 w - - 3 39;1273;2;26\n6rk/4q3/1p1N3p/2p4Q/2Pp1P2/P2P4/7P/7K w - - 0 33;1301;2;26\n3r1r1k/1p2n1pp/pq3p2/3BbP1Q/8/2PR4/PP3PPP/5RK1 w - - 6 24;1421;2;9\nr2k3r/1pqn2n1/p1p2p2/2Pp2p1/3P2B1/P1P1PQ2/3B1PPP/R4RK1 b - - 4 18;842;1;23\n4Q3/6pp/p4p1k/1p2n3/1P1Nq2P/P3P1PK/5P2/8 b - - 4 35;1555;1;26\n3k4/2R5/p2PBp2/1p6/3B2r1/1P1b3p/P6P/7K b - - 0 32;1123;1;26\n1k3r2/1pp2r2/p7/P3Q2p/1PNP4/2P1R1pP/5qP1/6RK b - - 3 31;1185;2;22\nr1bqkbr1/ppppnp1p/2n3p1/3N2B1/4Q3/8/PPP1PPPP/R3KBNR w KQq - 2 7;1144;1;1\n8/4Pp2/8/1Bk5/2P1n3/p7/7r/KR6 b - - 0 42;1471;2;2\n8/Q1p3pk/7p/5q2/8/6rP/PP4P1/6RK b - - 0 37;1195;2;22\n1R6/3Qnk2/4pP2/3p1qp1/3P4/P5K1/6P1/8 b - - 4 47;1274;2;26\nr2r2k1/2q3p1/p3ppNp/1pbb4/7P/P2B2P1/1PPQRP2/5RK1 b - - 1 24;1385;1;23\n3r1rk1/1b3p2/p3p1pp/8/1pN1q2Q/1P2P3/P4BPP/R4RK1 b - - 0 26;883;1;23\n6Q1/7K/5k2/8/8/8/6r1/8 b - - 0 73;1217;1;26\nr5r1/1q3p1p/4pQ2/p3n2k/2p2P2/6P1/P3P2P/5RK1 w - - 1 28;1953;2;26\n4k3/p4pp1/3B4/5P1K/1Nr1n3/P7/6PP/R7 b - - 4 42;1552;2;7\n3r1rk1/4bppp/p3pn2/8/1p1q1PN1/1PpQ3R/P1P3PP/R1B4K w - - 0 23;1312;2;23\nr2qkb1r/p2bnppp/1pn5/1Bp5/P2pN3/5N2/1PPP1PPP/R1BQ1RK1 w kq - 0 10;828;1;1\n8/8/8/8/8/6R1/p1K5/k5q1 w - - 0 64;558;1;26\n5nrk/4p2p/p2p1p2/2pPP3/n1P2P1Q/3B4/Pq2bKPR/8 w - - 0 32;1158;2;8\nr6k/pb1nRQr1/1qp5/1p6/2p5/P7/1P3PBP/6K1 w - - 0 31;907;1;27\n1r3k1r/p1p2ppp/2Bp4/4Bq2/2P3n1/2NP2P1/PP3P1P/R2QR1K1 b - - 0 17;1094;2;23\nr5k1/ppp3pp/2np2b1/4p1N1/2P1P3/3PnB2/PP1Q1qPP/RN5K b - - 6 16;699;1;27\n5k2/pR3pp1/4p1bp/2p1P3/B1P1pP2/4P3/r5PP/5K2 w - - 2 26;982;2;8\n2rq2kb/5r2/p2p2p1/1p1Pp1P1/7R/4BP2/PPP5/2K4R w - - 0 25;1135;2;17\n5r2/2p2q1k/1p1pr1pp/p1n1p1b1/P1P1P1P1/BPQ3P1/6NP/3R1R1K b - - 0 32;509;2;0\n1R1B2k1/3r1p1p/p5p1/3nPn2/2p1KP2/5P2/P3N2P/8 b - - 0 29;1826;2;7\n4r3/5pkp/6p1/4r2q/1P2P3/4QP2/4n1PN/1R3R1K b - - 0 29;1501;2;3\n4k3/7R/pq3r1B/1p6/8/1Ppb2RP/P5PK/8 w - - 1 42;1239;2;26\n6k1/pp2Qp1p/2q3p1/2P5/1P3RP1/3r3P/P4P1K/5r2 w - - 0 37;1070;2;26\n6k1/P4p1p/4p2P/3pN1p1/3P2n1/4PqP1/5P2/2Q3K1 b - - 0 50;967;2;26\n5rk1/p5pp/8/3p4/6Q1/P2P4/1Pq2RPP/R1B3K1 b - - 0 25;1064;2;0\nr1b2k2/pp1p1ppp/1qp5/8/5P2/8/PPP3PP/n2QRK2 w - - 0 20;1144;2;0\n2k1r3/p4Qpp/3p4/Bqp5/8/8/PPP2PPP/6K1 w - - 0 23;947;1;26\n6k1/p4r2/1pp3p1/3pN3/1P1P4/P1P3n1/6P1/R5K1 b - - 3 29;1146;2;3\n1r4k1/1p3p1p/p3qbp1/5b2/P1Pp4/BQ1P1BP1/1R3PKP/4R3 b - - 0 23;1197;2;27\n2R2R2/5p2/4pkp1/1pPbN3/1Pp2P2/2r5/rP3K2/8 w - - 0 44;1232;1;7\nr1bq3r/pp2k2p/1bnNppnQ/8/3p4/P2P1NB1/1P3PPP/R3KB1R w KQ - 2 16;932;1;27\nr6r/5bk1/p5p1/3pq3/2p3P1/3B1Q2/P1PK2Pb/5R2 w - - 0 28;991;2;27\n2r1k2r/1pB2ppp/1p2p3/1N1p1b2/2nPnK2/P4P2/1P2P1PP/R4B1R b k - 2 16;1289;1;27\n5r2/8/1P6/3kp3/1R6/2BK4/1PP4r/8 b - - 0 52;1344;1;26\n6r1/3P2k1/6p1/8/7Q/pP1q4/P7/K5R1 b - - 0 46;1162;2;26\n5r1k/1bpq3r/2np2RQ/p2B4/Pp4p1/1P4PP/2P2P2/6K1 w - - 4 27;1187;1;23\n5nk1/RQ4pp/5p2/1p1p4/3P4/5NqP/4r1P1/6K1 w - - 5 43;1225;2;26\n8/pp4pk/5p2/4p1p1/1P3nP1/2P1K1RP/P2r1P2/2R5 b - - 7 31;1737;2;26\nrnbq1k1r/p3b1pp/2pp1n2/1p2N1B1/4P3/1QPP4/PP3PPP/RN2K2R w KQ - 2 10;757;1;25\nr1b1k2r/ppqp1ppp/2nbp3/2p5/4P1n1/2P2N1P/PP1P1PP1/RNBQRBK1 b kq - 0 8;957;2;23\nr1bk2nr/pppp1Qpp/8/4b1q1/2B1P3/8/PPP2PPP/RN2K2R w KQ - 1 10;897;1;25\nr2q1b1r/pp4pp/5k2/2pp1bN1/3p1Q2/2Pn4/PP3PPP/RNB1R1K1 w - - 4 14;1331;1;27\nQ5r1/p1k2pq1/1p2Pb2/2p2p1p/2P5/2N5/PP3PPP/3rR1K1 w - - 2 24;1666;1;27\n4Q3/p4pk1/1pp2bp1/3pB2p/P2P2q1/2P3P1/5P1K/8 w - - 4 31;1634;2;6\nr3r1k1/pp3pp1/5b1p/q1p5/5pb1/2NBQ3/PPPR2PP/2K1R3 w - - 0 17;584;2;9\n3rr3/pp1n1p1p/q3N2k/6R1/4p3/1P2P1PP/PB3P2/2R3K1 w - - 4 28;1100;1;27\nr5kr/ppp2p1p/2n1q3/3NbP2/8/8/PPP2PPP/R2QKB1R b KQ - 0 13;1369;1;10\n6q1/pp3rk1/3Q4/4p1p1/1P6/P3bP2/6K1/7R w - - 0 43;875;1;6\n5rk1/pp6/8/6Bp/4Q1nP/P4PK1/1q6/5R2 b - - 1 35;968;1;26\nr2qr1k1/3b1pp1/ppp2n1p/n2Pp1N1/2P5/B2BP3/P1Q2PPP/1R3RK1 w - - 0 18;947;2;23\n2r5/pq3pnk/3p2pp/3N1P2/4P2P/4Q1P1/2r3BK/R7 w - - 1 35;1070;2;27\n3r1k2/R4p1p/6p1/1p2r3/5q2/1QP2B1P/3p1PP1/3R2K1 b - - 5 33;1080;2;20\n4r1k1/5ppp/4r1q1/2p5/Q1p2B2/P1n4P/6PK/4RR2 w - - 0 37;899;2;0\n3k4/7p/2p2pp1/4p3/1p6/1Pn1P3/PKR1NPPP/3r4 b - - 5 31;768;1;7\nr2kr3/5Qp1/1pp3pp/1q6/3P1B2/6P1/PP3P1P/6K1 w - - 0 24;1009;1;26\n3r4/2RP4/b7/P4k2/5B1K/6P1/8/8 b - - 2 64;821;2;26\nr1bq2kr/1pp2Rp1/pb1p2Pp/8/3PP3/4n2P/PP3QP1/RN4K1 w - - 0 20;1460;2;22\nr5k1/ppp4p/2pb1p2/7q/3P4/5Q2/PPP2PPP/R4RK1 b - - 0 15;866;1;23\n7Q/1kb5/1p1r2p1/2r5/3qp3/8/1P3PPP/R4RK1 w - - 2 29;970;1;27\n4R3/n4p1k/1p3Qpp/2p5/K6P/2P2NP1/PP3q2/8 b - - 0 31;1401;2;26\nR7/2q1r2k/2p2Qnp/1pP3nN/1P2P3/6Pb/6B1/6K1 w - - 0 39;2030;2;22\nr1bk3r/pp2b1pp/8/1BNp2P1/3n4/8/PP1B3P/2R2RK1 w - - 0 26;1970;2;11\n5rk1/1b3p2/pp2p1pp/8/3Q1NqP/1B4P1/PP6/R4RK1 b - - 0 25;921;2;23\n6bk/p7/1p4pp/2p3N1/2P2q2/3P2nQ/PP4K1/8 w - - 0 35;1356;2;26\n3Q4/5Npk/5n1p/8/3P2PP/5bK1/8/7q w - - 0 41;1633;2;26\n7k/p5pp/1r1p1p2/3Bb2q/4P3/1P6/P1Q4P/5R1K w - - 0 31;636;2;0\nrn3rk1/pp1b1pbp/3p2p1/2pPp1q1/2P1Pn2/2N1BN1P/PP1QBPP1/R4RK1 b - - 6 13;929;1;23\n4k3/5pp1/2P1p3/5rp1/pB2q3/P1Q4P/1P1R2P1/3K4 b - - 6 43;905;1;26\nr6r/pp3kpp/5qn1/b1Bp1R2/8/1BPP3P/PP4P1/4R1K1 w - - 1 29;1503;1;11\nrR6/P4p1k/6pp/7q/3Q4/3B3P/5PP1/5K2 b - - 4 36;969;1;26\nr3n2r/ppp1b1pp/4k1n1/3qP3/3P4/2Pb4/PP1N2PP/R1BQ1RK1 w - - 5 15;980;2;27\n8/5b1k/5ppp/8/4Q1P1/3pB2P/2q3B1/4K3 b - - 7 56;1169;1;26\nr1b1k2r/1pp2ppp/1p1p2q1/3Pp2N/2P1Pn2/3B1N1P/PP3PP1/R2Q1RK1 b kq - 0 14;1383;1;23\nrn3r1k/p6p/2p3Q1/3Pqb2/2B3p1/2N5/PP3P2/2KR3R w - - 0 22;1214;1;23\n4RBk1/5p1p/p1n2pr1/1p1p4/3P1q2/P6P/1P3PP1/6K1 w - - 4 34;1485;1;9\n3q1r2/p2rkp1R/7R/2bBp3/4P3/2PP4/PPK5/8 w - - 3 27;1282;1;8\nr1b2rk1/pp3ppp/1qp5/3p3N/3n3B/3P2QP/PP3PP1/2R2RK1 w - - 10 24;834;1;23\n1n3r1k/3q3p/r1pp1p1Q/p4p2/8/2NP1R2/1PP3PP/R6K w - - 1 22;725;1;23\n2k4r/p7/2p5/n7/8/1BNP1qQ1/PPP1N3/R1B2bK1 b - - 5 29;1531;1;14\n5r2/r4qpk/3p1n1p/p3pP2/Pp1pP1QR/3P3R/1PPB3P/6K1 w - - 3 28;967;2;8\nrnb3Q1/pp1k2p1/3Bpb1p/8/2P3N1/P2p4/1q6/3R1BKR b - - 4 26;1284;2;23\nr3N2k/6pp/1RQ1qp2/8/3p1P2/1P4PP/2PKP3/4R3 b - - 0 31;1362;2;26\nr5k1/p3pp1p/5bpB/8/8/qP3Q1P/P2r1PP1/3R2K1 w - - 0 21;953;2;27\n6r1/3p2k1/2q1p3/1b4Bp/5Q2/5P2/2r3PP/1R4K1 w - - 0 27;1013;2;27\n1r2q3/1b6/1k4p1/p7/6P1/1NQ2n2/PPP2P2/5K2 w - - 11 36;1282;2;26\n4Rrk1/5p1p/p1p2Qp1/1pPq4/1P6/P5P1/5P1P/3rR1K1 w - - 8 34;1490;2;23\nr1bk1b1r/pp3ppp/8/1BpN4/3p1B2/8/PPP2nPP/R1K3R1 w - - 8 17;922;1;27\nr2q1b1r/1p1b1kpp/p4pn1/3p3Q/3N1p2/N1P5/PP3PPP/R3R1K1 w - - 0 16;1200;2;27\nr1bq1rk1/1p4b1/p1p1ppp1/2p1P1N1/5P1Q/2NPn2P/PPP3P1/R4RK1 w - - 0 16;799;1;27\nr5k1/2p2ppp/1p6/p2b1q2/4n2N/P2BP3/1BQ2P1P/R2R3K b - - 0 24;1943;2;18\nr1bq1rk1/1pp1bppp/2np1n2/p2Np1N1/2P5/P3P3/1PQP1PPP/R1B1KB1R w KQ - 0 9;1223;2;23\n3R4/5p2/3b2b1/1k1B2P1/3K2n1/1P6/8/8 b - - 5 61;1738;1;26\nr1bq3k/pppp3p/6p1/3B1p2/8/1P2P3/P1P2PPP/b2Q1RK1 w - - 0 15;937;2;23\n6k1/5ppq/4p3/7r/5QR1/6K1/5PP1/8 w - - 5 37;897;1;26\n4rr1k/p5bp/6p1/3Q1pN1/2p4R/8/P4PPP/1q1B2K1 w - - 4 27;1199;1;27\n3Rr2k/4r2p/b4pp1/p4N2/Pp6/1P2R3/1P4PP/6K1 w - - 0 38;1349;2;26\n5rk1/1Q3pbp/1p2b1p1/2p1n3/3pP3/2P5/1PKB1PPP/r2R3R b - - 2 21;1379;1;27\nr1bq1k1r/pp1ppB1p/5np1/3Q4/8/2P5/P4PPP/R1B1K2R w KQ - 1 12;819;1;27\nr3rk2/pp1bq2Q/4p1Bp/3nP3/8/8/P4PPP/R2R2K1 w - - 0 25;1071;1;27\n1r4k1/7p/4p1pP/4Qp2/8/p5PK/q7/8 w - - 0 48;1184;1;26\n2r5/pp5p/5Pk1/2q5/4R1Pn/1Q5P/PP5K/4R3 b - - 2 38;1354;2;26\nr5k1/5pb1/pp1pp1p1/2r1n1P1/2PNKP2/1P2P2R/PB6/7R b - - 0 25;1219;2;27\n4r1k1/5pP1/p2pq2p/1p6/2r1b3/P1P3NP/6P1/3RQR1K b - - 1 30;1570;2;23\n8/1Q2pk2/5np1/2Np4/Rp6/8/PPP2qPP/1KR1r3 b - - 0 27;1331;2;24\n2k4r/1p3p2/2pp1bP1/p2P3q/2P1P3/2N2PQ1/PP4P1/R4RK1 b - - 0 29;1550;2;23\nk4r2/pp2R2p/8/8/5r2/1q3P1P/6P1/4R2K w - - 0 33;542;2;0\n6k1/6b1/p1p3Q1/P1B1p3/1P3pP1/5P1P/7K/2rr4 b - - 0 44;1663;2;26\nrnb2bkr/pp2q1pp/4P3/2pn2N1/3p4/5Q2/PPP2PPP/RNB1K2R w KQ - 1 11;1416;2;23\n3R1rk1/p1p2p2/2b1q1p1/2p1P3/8/P1B4P/1PQ2PP1/4R2K b - - 0 26;1401;2;23\n1k6/pp4pp/8/3P1r2/3Pn3/BQP5/P4bPP/1R5K b - - 6 28;1496;2;9\n8/6pk/2p4p/3p3r/Q2Np3/4P1Pb/P6K/6R1 b - - 0 30;1385;1;9\nR6Q/2p1rkp1/1p1p1pq1/3P4/1Pb3P1/5P1P/8/7K w - - 0 46;687;1;10\n2b5/1pN1kp2/p6p/8/3r4/P1b2KB1/2n2PP1/1R3B1R b - - 2 29;1043;1;11\n8/p7/1pnp4/3kb1N1/3n4/3K4/P1PB2P1/8 w - - 0 32;1504;2;26\n8/pp3Np1/4Qnp1/2P4k/7P/P7/1P2p1PK/3q4 w - - 6 37;1414;2;26\n3r1k2/1p3pRp/1p6/1P2B3/p1P1P3/Pn2q3/4R1Q1/4K3 b - - 2 33;1738;2;22\n2k1r2r/1pp2pp1/p1pbbn2/8/3P2Pp/2N1NP1q/PPP4P/R1B1RQK1 b - - 2 16;1139;1;23\nr2q1r2/5pk1/p4b2/1pPb3Q/1P6/3B4/6PP/5RK1 w - - 0 25;1019;1;27\n8/k1r1n2p/5r2/1QP3q1/1P2Bp2/pK3R2/P7/8 w - - 1 58;1254;2;27\nr2q1rk1/1b1pbppp/pp2p3/4P3/Pn1BQ3/2n2N2/1P3PPP/1BRR2K1 w - - 0 20;1095;1;23\n5rk1/5p2/4p1p1/4P1Pp/3PQ2n/6q1/R1P5/6RK b - - 1 42;1206;1;26\n8/1p6/p2b1k2/3p1P2/4p2q/6N1/PPP3K1/5R1R b - - 6 35;791;1;26\n5rk1/p1p2pp1/1bp3p1/3n3r/4N3/5PqP/PPPB2P1/R2QR2K b - - 2 22;1164;2;22\n6r1/kpp5/p1p5/4pR2/P3P3/1P1PP1rP/2P1QRPK/q7 b - - 4 28;1435;2;22\nr6k/ppp2Q1p/1n3q2/2b5/2B3P1/P7/1P5P/R6K w - - 0 30;916;1;27\n1r1q1rk1/pb2bppp/1p2n3/2p1PN1Q/3pBP2/6P1/PP5P/R1B2R1K w - - 0 19;1028;2;23\nr2q1r1k/pbp2p1n/1p2p2Q/4N1b1/3P4/2PB4/PP3PPP/R3R1K1 w - - 1 19;1194;1;23\nr1b1k2r/p1B3pp/1pn1P3/2bp1p2/4n3/5N2/PP2PPPP/R2QKB1R b KQkq - 0 11;1511;1;27\n1q3rk1/4bppp/2np4/1pp2PPP/4P3/1PN1B3/1PKQ4/r4RR1 b - - 2 21;1044;1;27\n8/5p1k/4p1p1/6Q1/P1P2Pqp/1P4B1/5PKP/8 b - - 1 46;1421;2;26\n2R1n1k1/3R2pp/4p3/8/3P4/4P3/3K1PPP/1q6 w - - 0 27;735;1;26\nr1b4r/pp3pkN/1q2p1n1/3p4/8/8/PP3PPQ/R1B2RK1 w - - 3 20;1640;2;27\n6k1/5p1p/2p1r1b1/pp2pNQ1/4P3/PP1P4/1P2q1P1/3R3K w - - 10 30;1576;2;23\n4k3/5R1p/8/K2pB3/3P4/2n5/1r4rP/5R2 b - - 0 31;1648;2;26\nrn3rk1/p1p2ppp/1p1b1n2/3P2Nq/6B1/2N5/PP3PP1/R1BQ1RK1 b - - 0 15;1146;1;25\nr1b4r/1p2Nk1p/pq1p1n2/3N2B1/4nP2/8/PPP3PP/R2QK2R b KQ - 1 14;1251;1;27\n8/p1r5/2P5/R2p1k1K/8/2P5/P7/8 b - - 1 54;1478;1;26\n1r4k1/2P2ppp/6q1/p2R4/8/1Q2n2P/1P3PP1/3R2K1 b - - 0 30;1142;1;26\nr5k1/1R4bp/3q2p1/P2P4/3pp3/P4Q1P/5PP1/6K1 w - - 0 25;948;2;26\n5b1r/p3R2p/1qpp1kp1/8/6PP/2P3Q1/PP3P2/6K1 w - - 1 28;1130;1;26\nr6r/p2Rbpp1/2R1p3/Bk2Pn1p/1P2NP2/5K2/P7/8 w - - 1 31;2009;2;8\n3r4/pp4pk/2n1Q2n/3q4/3p4/8/PP2P3/1K1R2R1 w - - 0 28;1025;2;27\nk7/p3q3/8/1R2p2p/5pp1/1P3P1P/2R2P1K/8 w - - 2 33;815;1;26\n5Q2/7p/5pp1/8/2P1P1Pk/5n2/Pr6/5B1K b - - 1 43;584;1;2\nr3kbn1/1pp2pp1/3p2p1/3Ppb2/1qP5/p1N1B1P1/P5BP/R1K1Q1NR b q - 0 20;1537;2;27\n6k1/1N2bpp1/p3p2p/8/4Q3/p2B2P1/1q3PKP/8 w - - 2 36;675;2;26\nr1b1k2r/ppp2pp1/2p5/7p/3PP1nq/2P3P1/PP2B1PP/RN1Q1RK1 b kq - 0 12;625;1;23\n2k3rr/1b1n1p2/pp2p3/3p4/P2NP2b/2N1B3/1PP1R1PK/R2Q1B2 b - - 0 21;1474;2;9\n5rk1/7n/p4ppP/8/1pp4P/3Q1PN1/qPK5/7R w - - 0 30;1628;2;26\n3k4/p1p5/P1P5/1Pp2Q1p/3b1pp1/8/6P1/4qN1K w - - 6 44;1187;1;26\n5rk1/1R6/2R1p2p/3pP1p1/3P4/P4rPq/1B1Q1P2/6K1 b - - 0 31;1817;2;14\n6R1/ppp1r2k/4Q3/7p/2P4q/P7/KP5P/8 w - - 8 33;971;1;12\n2kr1b1r/Qpq1pppp/6n1/3N1bB1/5P2/7P/PPP3P1/2KR2NR b - - 0 15;564;1;24\nr4rk1/4b1pp/p2pNn2/8/P3b3/4B1Q1/1Pq2PPP/3R1RK1 w - - 0 21;695;1;23\nr1b5/pp4pp/6qk/4Q1N1/5P2/2P5/P5P1/6K1 w - - 18 36;1075;2;22\n8/4Q3/p5pp/5p1k/P7/2r2qP1/4p2P/4R1K1 w - - 0 48;857;1;26\nr3k2r/b4ppp/p3pn2/6B1/3q4/3P1PN1/PP3P1P/R2Q1K1R b kq - 0 18;820;1;27\nr7/pp3R2/2p3pk/3pP3/3P2P1/2P5/PP4qr/2KB1Q2 w - - 1 32;1488;2;26\n3k2r1/BR6/p2p2q1/4p2p/5p2/5P1P/PP3P1K/2R5 w - - 3 31;1531;2;26\n6r1/r4ppk/2p1pR1p/pp2P2Q/1P2q3/P6R/3n2PP/2B4K w - - 0 33;1485;2;22\n2r2r2/7k/2p1N1p1/3p3p/1P1Qp3/P5R1/5qPK/8 w - - 0 33;1188;1;26\nrn1qkbnr/ppp3pp/5p2/4N3/2B5/6N1/PPPP1PPP/R1BbK2R w KQkq - 0 8;1361;2;25\n3r1rk1/4p3/p2q2pQ/5p2/1p5R/1P5P/2n3P1/5R1K w - - 0 40;1259;1;27\n2r3k1/p3pp2/3p2p1/8/3b3R/3q2PQ/Pr5P/5R1K w - - 4 32;1644;2;27\n1b3r2/5N1k/p1p2Qpp/8/8/6qP/PP4P1/4RR1K b - - 0 30;865;1;27\n3r3k/8/p3p1Qp/1pq3p1/2p1B3/2P3P1/PP3RPP/7K b - - 0 28;1132;2;0\n5q1k/6p1/1p5p/1Bb5/Pp2Q3/6PP/1P3PK1/8 b - - 0 46;846;2;26\n2rq2rk/5p1p/p3pPpQ/1p6/5R2/P7/BPb3PP/R5K1 w - - 0 23;1419;2;22\n2kr2r1/pp6/2p2p2/8/4Rn1P/1P6/PBPP1P1R/2K5 b - - 0 25;1037;2;26\nr5rk/1pp2pbn/p1n5/5qNQ/1P3P2/P4RK1/6PP/8 w - - 0 28;2247;2;1\n1n3rk1/2p1ppb1/3p2pp/8/P1PP1P2/B2BPNnq/2Q2R2/4N1K1 b - - 3 25;918;1;27\n8/6kp/4Q1p1/5pK1/P7/1P2R1P1/7r/5q2 b - - 1 44;708;1;26\n3rr1k1/5ppp/p2b4/1p6/3Pb3/2P1BqP1/PP1N1P1P/R3RQK1 b - - 8 22;1002;1;27\n8/p1P2k2/3BRpp1/7p/3Q2n1/6P1/q6r/5BK1 b - - 0 30;1628;2;22\n8/p5pp/2p1Qpk1/8/q2rp1P1/2P5/1K2PP1P/1R5R b - - 0 31;1135;2;26\n5rk1/p3Q1bp/6p1/3p2B1/3P4/2PP4/P4qPP/R6K b - - 2 22;808;2;0\n8/R6p/4p1pk/3bP3/5PP1/4P2P/7r/5K2 w - - 3 35;977;2;26\n4Q3/8/5pp1/8/5kP1/p4P1K/Pq6/8 w - - 4 54;1878;2;26\n1k1r2r1/ppp1bp1p/4pp2/8/Q7/2P1Bq2/PP3PPP/3R1RK1 w - - 0 19;1271;2;24\n2q3rk/p2np1bp/1pr3pN/4Pp1n/3P4/BP3NP1/P6P/R3R1K1 w - - 0 28;880;1;1\n4r2k/5pp1/1p6/5Q2/3N2n1/4P2q/4BP1N/2R3K1 b - - 0 29;1217;2;27\n8/5p1p/4b3/4N3/4qk1P/Q7/6PK/8 w - - 0 42;1496;2;26\n2k5/1p1b1r2/p1p1p2p/B1Pp1p2/3P1K1n/3B1N2/PP4r1/R4R2 b - - 1 34;2002;2;27\n2kr2nr/ppp2ppp/2n5/4P3/1bP2P1q/P2P1P1P/1PK5/RNBQ1B1R b - - 0 11;1333;1;27\n5rk1/3b3p/Q1R3p1/Pn1ppq2/8/4P1B1/5PPP/1R4K1 b - - 0 30;1003;2;27\nr3qrk1/pp6/1n3pp1/3pP1N1/1P6/2P4Q/2P3PP/R1B3K1 w - - 0 23;869;1;27\nrn2kbnr/pp2p1pp/2p5/3q1p2/3N4/2NPB1Pb/PPP1BP1P/R2QR1K1 b kq - 1 15;664;1;25\n4r2k/ppp2rpp/2bb4/6B1/3R2QN/1PP5/1P3RPP/6K1 b - - 0 22;943;2;23\n1k1r3r/ppp2R2/8/3Pp1p1/4q3/2Q5/PPP5/2KR4 w - - 0 22;969;2;26\n5b1r/3kp1p1/R5Qp/Bn1p4/3p4/q7/B4PPP/2R3K1 b - - 0 30;635;2;27\n2r1kr2/5pQp/p3p3/1p1N4/5PP1/P6P/1PP2q2/1K1Rn3 w - - 0 20;1061;2;27\n2n5/5k2/5p2/5K1P/4PBP1/8/5P2/8 b - - 0 53;1705;1;26\nBk2rR2/p3r1pp/8/2p1b3/3pQ1n1/3P2q1/PPP2R2/7K w - - 2 28;1260;2;24\n6k1/3R2p1/3p3p/R2P1p2/3b1P2/5KPP/2r5/8 b - - 10 48;1084;1;8\n6k1/1bp2p2/1p3n2/5NN1/2PR4/1p4P1/1P2K3/1r6 w - - 3 44;1096;2;26\n8/Q6p/1p3kp1/5p2/4q2P/P5PK/1P3P2/8 b - - 6 39;1368;1;26\n1R4Q1/3kr2r/q3pR2/3pP3/2pP4/2P2K2/8/q7 w - - 0 39;1519;2;14\nr5n1/1b5k/3pP2p/2p4N/1p2P1Pp/1P1P1Q1P/q1r5/1R5K w - - 0 33;1111;2;27\n1k3q2/1b6/3PP3/8/1Q5P/8/6P1/7K b - - 0 46;684;2;26\nrnbq2k1/1p3p1p/p2p2pr/2pP4/2PbNP2/3B2N1/PPQ3PP/R3R2K b - - 6 21;1160;2;22\n3r4/p1Q2ppp/k5n1/q7/8/1P4P1/5P1P/5RK1 w - - 0 25;1398;2;26\n1br4k/pp3R2/4pp2/7p/4P2Q/2N3qP/PP6/7K w - - 0 27;1182;2;12\n8/2p4r/1p1p4/p2Pnk2/P1P2pRp/1P3R1K/8/8 w - - 2 47;1077;1;17\n1r4k1/2R2ppp/3b1n2/1q2p3/4P3/1Q5P/3N1PPK/8 w - - 4 29;1139;2;27\nrn5r/2R4p/5kp1/p2Ppp2/Q7/8/P3qPPP/3R2K1 w - - 6 29;1545;2;27\n2kr1b1r/pp1qpppp/2P5/2p5/8/2P2N2/P1P2PPP/R1BQK2R b KQ - 0 10;558;1;27\n8/4k1p1/2p3p1/bpPpKpPP/3P4/1P2B3/5P2/8 b - - 0 35;1396;1;26\n6Q1/p5Rp/1rpkpp2/q2p4/5P2/2P5/bR5P/K7 w - - 4 31;1511;1;26\nrnb2rk1/pp4pp/3N4/3q4/8/3P4/PP2Q1PP/nN3R1K w - - 0 16;1019;2;23\n1nbk1b1r/1p2pBpp/2p5/3rN3/8/4B3/2P2PqP/1R2KR2 w - - 0 18;1344;1;27\n3r2k1/2R2pp1/p6p/1p2PPn1/2p2K2/P3N1P1/1PP4P/8 b - - 4 39;1030;1;26\nr1bq2r1/ppp2p1k/2pn3p/4N3/5Q2/7P/PPP2PP1/R1B1R1K1 w - - 12 19;1433;1;27\n6r1/p1p1kp2/7B/2b4p/2P4q/4PK2/PPQ2P2/RN3R2 b - - 2 20;1223;1;27\nr2qr1kb/pp1b1p1n/3p2PB/7p/3NPpnP/1BN5/PPP3P1/2KR3R w - - 0 19;790;1;23\n8/8/6p1/5pk1/PR1R4/KP6/8/4q3 b - - 4 50;640;1;26\n1rbn1b1r/1pN1kppp/p3pn2/4N3/2B5/8/PP1B1PPP/R3K2R w KQ - 0 13;1074;1;27\nr2qkb1r/2pb3p/p2p4/1p1PpnN1/8/2NP4/PPP1QPPP/R3K2R w KQkq - 1 14;970;2;27\n6k1/5pqp/5Pp1/p2pP3/2p2K1Q/2P1PR1R/Pr5P/6r1 b - - 6 34;1467;2;26\nr1q1k3/pp3pp1/3p4/3Np1Q1/3pP1n1/3P4/PPP1NPK1/r7 w q - 0 20;901;1;27\n4Rnk1/4rp1p/3p2p1/2pP1b2/1pP4q/1P1P2R1/1Q3P1P/6K1 w - - 6 29;1397;2;22\nr4rk1/3n1p1p/2p2qp1/ppPp4/8/4pBPQ/PP3PP1/R3K2R w KQ - 0 19;550;1;23\n5r1k/1p2R1p1/2p5/8/K2P2Q1/8/PP4P1/2q5 b - - 0 34;1658;2;26\nrn2kbn1/ppp1ppp1/8/3P4/6qP/4P2b/PP1P1PBP/RNBQ1RK1 b q - 0 9;693;1;23\n8/4k3/4p3/p2pK2Q/6P1/P4P2/3q4/8 b - - 6 49;1463;1;26\nr3q1kr/ppp2p1p/2n2b1B/3p4/8/8/PPP2PPP/R2Q2K1 w - - 0 19;1004;2;23\nr1b2b1r/pppq2pp/8/3Qp3/kPB5/P7/3P1PPP/n1BK3R w - - 4 17;1681;1;27\n8/8/2Q4p/1p3ppk/8/P4NP1/1P3nPK/3q4 w - - 1 34;1385;2;26\n8/5pp1/1p2r1p1/p1n5/P1P1pPPk/1PB4P/4K3/7R w - - 5 45;1382;1;26\nk5r1/p1Q2p2/b3p3/8/7q/P3PP2/6PP/1R4K1 w - - 4 41;1215;2;26\n4Rnk1/2p2p2/2p2r2/5Np1/p5P1/r4pK1/5P2/7R w - - 2 43;1835;2;22\nrnb3k1/ppq3pp/8/3pp2Q/8/3Pb3/PPP2PPP/R4RK1 w - - 0 14;968;1;27\nr5k1/p2b2pp/2pp1B2/8/8/2Pn1NQ1/PP2qPPP/RN4K1 b - - 0 19;1068;2;23\n7r/1p4QP/3kNn2/4pP2/p3r3/5K2/3q4/7R w - - 2 35;1502;2;27\n2rR1nk1/4n2p/pp2qppQ/8/1P4P1/P1P2B1P/5PK1/8 w - - 3 34;1152;1;23\nr1b1k2r/1p3ppp/p3p3/q3b3/4P3/1P2P1P1/N1PQN2P/2KR1B1R b kq - 0 17;1655;2;25\n5r2/ppq3pk/7p/3Q4/2nPpb2/P1P4P/1P4P1/1RB2RK1 b - - 0 24;1373;2;23\nr5rk/2R3p1/p2R4/1p3p2/4pPqp/P1Q3P1/1P4KP/8 w - - 0 36;1234;1;26\nr5k1/2R1Qpp1/4pn1p/3p4/P2P1P2/6P1/1q2b1BP/6K1 w - - 0 26;994;2;27\n5bk1/R6p/4K3/P7/6N1/8/r6p/8 w - - 0 38;1162;2;2\nrn2r1k1/p4p1p/2pN1qp1/1p6/3PB1n1/8/PPQN1P1P/R1B1K2R b KQ - 0 17;1092;2;13\n1k1nr1r1/ppp5/5p2/PPPp1B2/1Q1P2qp/8/6PP/1RR1N1K1 b - - 0 26;1405;2;23\nr3qb1r/p2k2p1/Qnp1pn1p/8/3P1B1P/8/PPP2PP1/2KR3R w - - 2 20;1247;2;27\n5r1k/pprq3p/4pp1Q/4p3/4P3/P4P2/1PP4P/R5RK w - - 8 26;869;1;23\n5r1k/ppp3p1/7p/2PB4/4b2q/1Q5P/PB3PP1/4R1K1 b - - 0 23;1366;2;27\nr2qr1k1/5pp1/p2p3p/2p3b1/5n2/2NP2Q1/PPP2PPP/R1B1R1K1 b - - 0 20;1308;1;23\n4r2k/pppQ2pp/3p3r/3P4/8/5PB1/PPq1BKP1/R4R2 b - - 1 24;1940;2;27\n6k1/2p2ppp/pb1p4/1p1B1P2/5BP1/2P3qP/PP2r3/R4Q1K b - - 2 28;1403;1;27\n8/8/3RR3/P3P3/2K5/3Pk3/1r5r/8 b - - 3 44;1646;2;26\nr2q1rk1/pp1bbppp/2p1p3/4N2Q/3PNn2/3B4/PPP2PPP/2KR3R w - - 4 13;1168;2;22\n2krrb2/1pp2p2/6p1/1P2p2p/3QPP2/2P3P1/4q2P/R4RK1 w - - 0 30;972;1;27\nr2k3r/pp3pp1/3q4/1B1p1Nn1/6p1/2P2N2/PP2QPP1/3R1RK1 b - - 0 19;1368;2;23\n6k1/6r1/7R/1pb2B2/8/5Q2/6PK/4q3 b - - 2 47;1236;2;26\nr3r1k1/2qn4/2p2npP/p7/1PPp4/5P2/P1Q2P2/2K4R w - - 0 27;1150;2;27\n2r3k1/2r2ppp/p7/3p4/Np3PP1/1P1R3P/PP6/K5R1 b - - 0 29;468;2;0\n5r1k/3P3p/1p1PB1p1/2p1p3/5q2/P1B3bP/2Q3P1/4R2K b - - 10 33;1160;2;9\n3rr3/ppp1qk1p/2b1pNp1/2b2p2/3pPP1Q/1P1P4/PBP1R1PP/5RK1 w - - 2 23;1357;2;22\n4rrk1/pp2q1pp/8/2PP4/1P4n1/P4N2/2Q3PP/4R1KR b - - 4 25;534;2;23\n3r2k1/pp4pp/2p5/8/2N1n3/4BN2/4KPPP/5B1R b - - 2 20;980;2;27\n5rk1/3q2pp/1p6/p2pBN2/2rPnQ2/2n5/6PP/2R2RK1 w - - 0 28;1630;2;23\n4k3/1R6/2N1N1p1/8/7P/2b5/6PK/1q1r4 w - - 0 35;1466;1;15\n7N/pp5R/2k1p3/4Pn2/1P1P2K1/r7/3bR1P1/8 b - - 0 36;1415;2;8\n5n2/8/1p2q1p1/p1pp2kp/3P2N1/2P3QP/1P4P1/6K1 w - - 0 33;1953;2;26\n8/2R5/P2Npk2/2P1n1p1/4P2p/7P/3r2PK/8 b - - 1 38;1023;2;26\n8/8/6r1/8/8/8/5k1K/1R6 b - - 45 92;1148;1;26\n8/7R/8/4pkp1/3b4/6PK/1r5P/2R5 b - - 0 46;1082;2;26\n5r1k/6p1/3p1q1p/P2B4/2P5/1P1Q1p2/5P2/R3R1K1 b - - 0 33;993;2;26\n3r2rk/p4Rp1/5RQp/4q3/3p4/8/PP4PP/6K1 w - - 0 33;1439;2;22\n8/5Rp1/8/8/6PP/pk6/6r1/K7 b - - 0 56;999;2;26\n6k1/p1p3pp/2p3q1/2Bp3r/7r/2P4P/PP1Q1PP1/4RR1K b - - 0 20;975;2;23\nq4rk1/5ppp/3p4/1B2p1b1/Q1Pn4/8/1P1N1P1P/2B2RK1 b - - 4 19;1133;1;27\nr2q1rk1/pp3ppp/2p1b3/4P2Q/4Nn2/3B4/PP3PPP/R4RK1 w - - 3 17;1010;2;23\n5k2/pp3p2/6p1/4p3/4PN2/1PP1K1N1/P2r1r2/R7 b - - 2 30;1190;1;26\n7R/6p1/p2Kpk2/1p2N2n/7P/8/4rP2/8 w - - 2 35;1565;1;26\nr2q3r/p2bk3/4pnB1/1p1p2bp/3P3P/6Q1/PPP2PP1/R4RK1 w - - 0 17;2161;2;27\nr1b2rk1/ppp2ppp/3p4/2b1p3/2B1N3/3P1nP1/PPP1NP1P/R2Q1K1R b - - 0 12;926;1;25\n8/pp1b1Qp1/4p2k/1P1pb3/P5P1/3n3K/2r4P/5R2 w - - 0 33;1258;1;26\n4r3/RP2Pk2/6p1/2P1Rp2/5PpK/1r6/6PP/8 b - - 6 52;1087;2;10\n5r2/p1pn2pp/3q1n1k/8/2Q5/2N3R1/Pr3PPP/R5K1 w - - 5 22;1195;2;27\nr2r2k1/1p1b1p1p/p4PpB/2n1PN2/2p5/P5R1/3q2PP/4R1K1 w - - 0 30;991;2;23\n7Q/3k4/4p3/3pBp2/2bP4/1rn1PB2/2R2PP1/K7 b - - 0 60;947;1;2\n2b3k1/5pp1/p6p/2q5/5QP1/5P1K/4r2P/3R1R2 b - - 0 30;1562;2;26\n2r2r2/pp2p1k1/3q3p/5Pp1/1P1Pb1P1/1QN4P/P7/3R1RK1 b - - 2 29;1190;1;27\nR2r2k1/8/5pK1/6P1/8/8/8/8 w - - 2 64;451;1;26\n3Q4/p4pk1/1p5r/3R4/2B1p1q1/1P2P1N1/P4PK1/5R2 b - - 2 38;1274;2;27\n5k2/p1Q3b1/1p3p2/5q2/8/4r1P1/PP4K1/2R4R b - - 3 37;1692;2;26\n5rk1/5ppp/R3p1b1/1p2N3/1P1P2P1/4nP1q/1PQ4R/4B1K1 b - - 0 27;1473;1;27\n8/p1k2p2/4n1p1/1p1BPn1p/4KP2/2P2PB1/P6P/8 b - - 1 28;1018;1;26\n3Q4/r4rkp/2Pbp1p1/1B1q1p2/4b3/3p3R/6PP/2B3RK w - - 2 42;1451;1;27\n8/6k1/3R4/3P4/8/8/Pr1n4/5BK1 b - - 0 44;887;2;2\n1r4k1/3nq2p/2p1b3/2Pp4/2P1pb2/2Q4P/1B2B1P1/R4NK1 w - - 2 26;1622;2;23\n2q3k1/5pp1/p2b2p1/1p1P2R1/4Q3/1P5P/5PP1/1B4K1 b - - 0 27;779;2;26\n6k1/qr3p2/6p1/4Q2p/2R1P2P/p7/K7/8 w - - 1 45;1078;2;26\n8/4k3/4n3/R2pK3/2pP4/2P1PP1r/1P5r/1R6 b - - 7 40;801;1;26\n8/k1p5/pn6/4Q2p/1P1r3N/R3KPP1/3r2P1/8 b - - 0 38;1169;1;13\nr7/pb4p1/1ppR4/6k1/2P3B1/P5K1/1P3P2/8 w - - 1 33;1044;1;26\n7k/qp2N2p/p2pP1pP/4n3/4P3/2r5/PP4P1/5R1K w - - 0 30;600;1;26\n1r3k2/5p1p/4pQBP/p2p4/1r1q4/1P6/P1P5/1K5R w - - 1 29;1257;1;26\nr4rk1/pp3ppp/2nq1n2/2bp1P2/N7/5N1P/PPPBB3/R2QK2R b KQ - 2 14;884;2;27\n5k2/2rP4/6K1/pB6/1p2p3/2b2P2/P7/8 w - - 0 49;800;1;20\n5r1k/2p1r3/p2p2pp/8/2Q1q3/7P/PPP2RP1/6K1 w - - 0 30;1296;2;26\n3q3k/pp3p2/8/4P3/Q6P/P7/1P2r2P/2K3R1 b - - 2 41;1105;2;26\n4Qbk1/7p/8/4ppB1/2p4P/P1KbP1P1/1r3P2/8 b - - 7 44;919;1;8\n1k6/8/KP6/1N1B4/3r4/8/8/8 b - - 10 71;1208;1;26\n8/1p4Q1/1kp5/p4p1P/2qP4/K3P3/PP3P2/6B1 b - - 3 43;923;1;26\nrnbk2nr/ppNpp1b1/7p/5pP1/8/4p1B1/PqP2PP1/R2QKBNR w KQ - 2 11;2173;2;25\nr1bq1k1r/ppp3pp/1b4B1/3p3n/3P1B2/2P5/PP1N2PP/R4RK1 w - - 0 14;1836;2;18\nk2r2r1/2Q1Rp2/pP3n2/3p4/1P4n1/7p/P2N4/R6K b - - 2 32;1407;2;27\nr1b1kbr1/ppp2p1p/2np3n/8/2B1PP2/3N2q1/PPPP2R1/RNB1Q1K1 b q - 1 13;1160;1;23\n5R2/8/4p3/3nk3/1p6/3K2p1/3N1r2/8 w - - 2 53;1388;1;26\nR3Qnk1/1pp3p1/1p5p/3pp3/5q2/1P1P1P1b/1PPN1P2/6K1 b - - 3 22;1186;2;26\nr4rk1/ppq1b1pp/3p4/3b1p2/2PQ4/1P4P1/PB3P1P/R4RK1 w - - 0 16;1192;1;23\n8/1k6/1P6/8/1P4Rp/6pP/1r4P1/6K1 b - - 2 41;541;1;26\n2kr3r/p1pn3p/1pQ1p1p1/3n4/3q3P/8/PP3PP1/RN2KB1R w KQ - 0 16;1354;2;24\n8/8/3n4/1pp1k3/p3p2P/P3KpP1/1PPN1P2/8 b - - 0 38;1475;1;26\n4rrk1/3b2pp/p5p1/1pbp4/8/2P2P2/PPBB2PP/R3RK2 b - - 1 25;1656;2;22\n5r1k/1p1Rn2p/p6r/4p1B1/P1N5/1PP3Pq/4QP1P/3R2K1 b - - 0 33;993;2;23\n2rq2k1/pp1b1rB1/3p1pp1/8/2n1P3/1N3p2/PPPQ4/1K1R3R w - - 0 21;1710;2;12\n4rk1r/pQ5p/2p3p1/1pq1p3/4P3/1K1R2P1/PPP4P/8 w - - 3 30;1189;2;26\nr4rk1/1p5p/p1p3p1/2qNQ1P1/7n/8/PP2PPB1/R2R2K1 b - - 0 21;938;2;23\n2r3k1/pp5p/1r3qp1/5b2/2P2Q2/5B2/PP1R2P1/2KR4 b - - 0 25;2432;2;8\n2rqkb1r/4np1p/p3p1p1/1p2Pn2/2p1NP2/1P5P/P2P1QP1/R1BB1RK1 w k - 1 18;954;1;27\n4r1q1/1pk5/3p3p/2PP4/1P1Bp3/2Q2p2/6PP/5RK1 b - - 0 29;1102;1;26\n8/3n4/1r5p/2p1p1p1/k1K3P1/1p3P2/8/1R2B3 w - - 0 55;1108;1;26\n4r1k1/p4p2/1p4r1/5R2/2P3P1/3P1Q1p/PP3P1P/4q1RK b - - 4 31;975;2;22\nr1b1k2r/p2p1ppp/1qp2n2/2b5/N3P3/5P2/PP1B2PP/R2QKB1R b KQkq - 3 11;1359;2;25\nr1b4Q/pp3RQ1/1kp5/2np4/8/2Pq4/PP2p3/K6R b - - 0 34;1263;2;0\n3rk3/1b3p2/p3p3/4B1P1/8/6p1/1PR3P1/3R2K1 b - - 0 36;441;1;26\n2R5/p4kpp/1p4r1/3bp1PB/3Ppp1P/BP2q3/P5PK/8 w - - 0 34;1833;2;26\nr4rk1/1p1b1pnp/p2p2p1/P1pPb1B1/4P2q/2N5/1PPQB1PP/R4R1K b - - 2 18;623;1;23\n1r1r4/p1bk1p1p/4bP2/2R5/2P1Q3/6P1/P6P/6K1 w - - 1 31;1161;2;10\n3r2k1/4qpp1/p1nb3p/3n4/1p6/1PpQPP1P/P1B3K1/R2R4 w - - 0 26;716;2;23\nr4rk1/1bp3pp/1p4q1/p3Npn1/P1P5/2P1P2P/2Q1BPP1/3R1RK1 b - - 6 21;1309;2;23\nq4k2/5p1p/4p3/3pP1Q1/3B4/1bP5/5PPK/q7 w - - 6 49;1423;2;26\nr4rk1/ppp2pp1/2n4p/3p4/1P1P2Bq/PN2P1b1/1B1N3P/2RQ1RK1 b - - 0 17;831;1;23\n1b1r1rk1/2q2ppp/B1n1b3/2Np4/3Nn3/1P2P3/PB3PPP/2RQ1RK1 b - - 4 18;1431;1;23\n5r2/p1Q1N1kp/1n3pp1/8/1P6/8/R5PP/3r1b1K w - - 2 30;1026;2;18\nr2qrbk1/pp1n4/2p1pn1Q/3p2N1/3P4/2NB4/PPP2PPP/R5K1 w - - 2 15;1569;2;23\n8/2B5/1P6/5p2/5P2/RbP2kP1/p2K4/1r6 b - - 16 63;814;1;8\n6k1/p1p5/4N1pp/4p3/2P5/6PP/Pr2r3/2KR1R2 b - - 1 28;885;1;17\n2Qr2k1/p4ppp/8/1p6/6nq/1P6/P2r2PP/1BR1R2K w - - 4 27;1060;2;27\nrnbq2rk/pp6/6Qp/3pP3/3P4/6R1/PP4PP/RN4K1 w - - 1 19;1130;1;23\n8/8/7p/3N4/2nn4/1k1N1PP1/2p4P/2K5 b - - 0 44;876;1;26\n8/Q5p1/5p1k/8/6PK/4Bq2/7P/8 b - - 3 52;1253;2;26\n8/1pp1qkpp/p4B2/3p1p1P/2nP1n2/P1r5/B1P3Q1/7K w - - 0 34;1207;2;27\n7Q/3kbppp/3pp3/6q1/1P4n1/5P2/P4P1P/R1B2RK1 b - - 0 20;1344;2;19\n2b3k1/6p1/2B1p2p/p1p1Q3/2P2r1q/1P6/P4r1P/R5RK w - - 2 30;1127;1;27\n3r4/p3kbQR/B4p2/1p6/5Pp1/2p1q3/Rb2N1P1/4K3 b - - 3 31;1833;2;22\n7b/7P/8/1N3n2/p1p2P2/8/k1KN4/8 b - - 3 49;1645;2;26\n7k/1Q4p1/p2P3p/2q5/4BK2/5P2/P7/8 b - - 0 48;1207;1;6\n1rb2k1r/p3q1p1/1b3P1p/1p1Q2P1/2p1P3/1BN5/PP4P1/R4R1K b - - 2 25;1417;1;9\nr4rk1/pp3p2/2q2Q1p/2bp4/8/7R/P1P3PP/7K w - - 5 29;1093;2;26\nr6r/p1q1kppp/1pnNp1n1/2Q1P3/5P2/8/PPP3PP/3RK2R w K - 0 18;1734;2;18\n8/1p4p1/p3k2p/P3Pp2/2P2KP1/1P1r3P/8/4R3 b - - 0 35;1700;1;26\nr2q1k2/pp1bpp2/2np4/7n/4P2p/4B2P/P1PN2P1/Q4RK1 w - - 0 17;1499;1;27\nr1b1rnk1/5q2/2p5/4p1pQ/Np2P3/5NP1/1PP2PP1/2K4R w - - 0 24;1148;1;27\nr4r2/4ppk1/6p1/3p1b2/1Pp5/4P3/PP2BPP1/K1R4R b - - 0 22;957;2;22\nr2q1r1k/bppb2pp/p1np1p2/3Q4/2P1RN2/2N2PP1/PP4BP/R6K w - - 6 18;1057;2;22\n3rk3/2q1bN2/pp4Q1/4p3/5n2/4n2B/PPPK3P/6R1 w - - 3 30;2065;2;18\n1r6/8/8/1P5R/K1k5/8/8/8 b - - 0 60;1019;1;26\n2N1r3/2k2ppp/p1p5/8/1b2n3/8/PB3PPP/R4KNR b - - 0 17;790;1;13\nr4rk1/ppqbnppp/2p1p3/8/3PNn2/2PQ1N1P/PPB2PP1/R4RK1 w - - 4 17;1006;2;23\nb4B1k/P5pp/7q/1Q2p3/3p4/2P3pP/1R1N2P1/7K b - - 0 38;1585;2;26\n3r1rk1/p4ppp/1pR5/8/4pN2/P3PBPN/R3bP1P/6K1 b - - 0 24;1564;2;23\nR7/5kp1/b1p4p/2NpP3/3P2PK/r6P/8/8 b - - 12 35;1056;2;26\nr1r3k1/pp2pp1p/2nqb1pB/8/4n3/5NPP/P1P1PPB1/Q4RK1 w - - 0 14;789;1;27\n5Q2/8/6k1/5p1p/5Kp1/4r1P1/7P/8 b - - 3 69;1354;1;26\nrnb1kb1r/1pp1pppp/8/1P6/p1Pqn3/P1N5/1B1P1PPP/R2QKBNR b KQkq - 3 8;1107;1;25\n3r4/1k5p/1pn1R1p1/5p2/8/PNn2N2/P1P2PPP/2K5 b - - 0 23;1483;2;24\nr2r1bk1/2R2p2/1p1p2p1/4p1q1/2Q1P2p/5P2/PPR3PP/6K1 w - - 0 26;962;2;23\n5R2/p3B3/P5pp/1r3b1k/5P2/5K1P/3rp1P1/8 w - - 0 47;931;2;26\nr2q4/p2b4/1nQp1p2/1p6/Pk1P3P/4Pp2/1K3P2/6R1 w - - 0 30;1203;2;26\nr3k1nr/1b2ppbp/pN1p2p1/q1pP4/1p2PB1P/1P3P2/P1PQ2P1/2KR1BNR b kq - 0 12;1359;2;24\n6k1/6pp/2B5/4p3/8/P3P1P1/4q2r/5RK1 w - - 0 34;952;2;0\nr1b1k1nr/p1pp1pQp/1p5B/8/2BbP3/8/PPP2qPP/RN1K3R w kq - 2 10;1388;1;25\n2kr1r2/pppbq2p/1nn1p1p1/1N1p2N1/3p3P/1B4Q1/PPP2PP1/2KR3R w - - 0 19;1001;1;24\nr2q2kr/ppp2bp1/2np3p/5N2/4P1QP/8/PP3PP1/R1b2RK1 w - - 0 16;834;1;23\n6k1/2p2pp1/4p2p/p1p1P3/2P4K/2Q1B2P/PP3Pq1/8 b - - 0 30;1456;2;26\nr5k1/p4p1p/1p1B1Pp1/3p2Q1/8/3nPP2/Pp5P/1KR5 b - - 0 28;1141;1;20\nr1b1kb1r/1pqp1pp1/p3p3/2p4p/P1BnP1nB/2NP1N1P/1PP2PP1/R2Q1RK1 b kq - 3 10;1170;2;23\nr4k1r/1p3p1p/2qb1N2/3p2B1/2p3P1/p1P4P/1P1R4/1K2R3 w - - 2 27;1147;1;27\nrn1qkb1r/ppp3pp/3pP3/1bn5/8/2N2Q2/PPP3PP/R1B1K1NR w KQkq - 0 11;1254;1;25\n4r1k1/ppq1rpp1/2p4p/2np4/5N1P/3Q2P1/PPB2P2/3R2K1 w - - 3 29;755;2;23\n4r1k1/Q5pp/1p2q3/1Pp5/2p5/5RP1/2P2P1P/5K2 b - - 0 26;1613;2;26\n5k2/3R4/5K2/3p1P2/6r1/8/8/8 w - - 0 48;1226;1;26\n6k1/6p1/7p/3qB3/p1pP1PQ1/P1r4P/6PK/8 w - - 0 34;1322;1;26\n8/8/3p1p2/3qpk2/8/7P/4Q2K/8 w - - 0 54;920;1;6\nr1b1k2r/p1q2pp1/4P3/2bp3p/6n1/2NB4/PPP3PP/R1BQ1R1K b kq - 0 13;850;1;23\nrnbq1rk1/1pp2pn1/6QB/2bp4/p7/P2P4/BPP2PPP/RN3RK1 w - - 0 14;934;1;23\n8/p5kp/1p3p2/3P4/P4pnq/2P3R1/4Q1P1/4N1K1 b - - 0 40;1253;2;26\n6rk/6pp/1p4r1/p6q/2Q5/1P5P/P4Rp1/4R1K1 w - - 4 41;1085;2;22\nr1b1kB2/pp1n1pQp/2n1p3/3pP3/3p1P2/2q5/P4KPP/R4BNR b q - 1 14;1179;1;6\nrnbq1rk1/5pp1/2p1p2p/pp1nP1N1/2pP4/5N2/PPQ1BPPP/R3K2R w KQ - 0 13;542;1;27\n4r1k1/ppqn1p2/2p2n2/3p1N2/7Q/2bP4/PPP2PPP/R5K1 w - - 0 19;1543;2;23\n6r1/pp2pp1k/7B/7Q/2p5/3q1KP1/5P1P/8 w - - 3 32;1541;2;6\nr5rk/ppp2p1p/2np1P1B/6Q1/2qb4/6P1/PP3P1P/RK5R w - - 1 20;1100;2;23\n8/7r/p2k4/1pp3R1/3p4/5PN1/PPP2K2/4R2r b - - 1 31;1168;1;26\nr6r/p4ppp/1p3k2/3p1P2/1Q2b1PK/7P/P5q1/5R2 w - - 1 27;1184;1;10\n7r/p1Qp2p1/kpR2nq1/3N4/8/6P1/PPP2P1p/3R3K b - - 0 29;1078;2;27\n7k/pp6/3P2Qp/2P1p3/4B3/P7/1q3r2/3R3K b - - 0 34;1078;2;12\n8/5R1k/7p/3b2pK/3B2PP/8/7r/8 b - - 0 38;729;1;26\n3r2k1/ppp1qppp/8/2n1pQ2/3n4/P1N2N2/1PB2PPP/6K1 w - - 4 21;979;2;23\nr1b4k/2q2rpp/p4p2/3p4/5p1Q/P7/1PPB1PP1/R3R2K w - - 0 22;946;2;23\n3k2n1/2pq1pp1/pb1p2b1/1p1BN3/4P3/2P4r/PP3P2/RN1Q1RK1 b - - 0 18;1995;2;23\n8/1P4pk/6rp/4n3/3Qpp1P/2P4b/1P3PP1/5RK1 b - - 0 34;1823;2;26\n5r1k/2p2q1p/p2p3R/4n1p1/4Q3/1R6/P4P1P/6K1 b - - 3 33;1251;2;26\n8/p7/2R1rk2/5pQ1/1P5K/4q2R/P7/8 b - - 5 47;968;1;26\n6k1/ppQ2ppp/8/4r3/q7/2P3PP/PP1r4/5R1K w - - 0 28;1154;2;26\nr1bq1rk1/ppp2ppp/1b6/4P3/6P1/2NB4/PPP3P1/R1BQ1R1K b - - 0 14;722;1;25\n8/6k1/7p/b5p1/P1qP2P1/4P2P/P1Q5/3K4 b - - 0 43;981;1;26\nrnb2b1r/pp3Qpp/4p3/2ppk3/3p4/2P3P1/Pq3P1P/RN2K2R w KQ - 0 15;1184;1;27\nr3kr2/p1pn1pQB/bp2p2B/3nN3/3P4/2q1P3/P1P2PPP/R5KR b q - 5 16;894;1;0\n1r3r2/2qn4/b1Bpk3/4p1Qn/4P3/1PN2P2/8/2K3R1 w - - 0 31;1679;1;27\n6k1/pp3ppp/4b3/1B1r4/P2b1q2/8/1PQ2PPP/4R1K1 w - - 0 21;1582;2;0\n8/pR4p1/1b4k1/5p1p/7P/5KP1/r7/3R4 b - - 1 38;1343;1;8\n3r2k1/p4ppp/4p1b1/3nP3/P6Q/1q3PN1/4N1PP/5R1K w - - 1 26;850;1;0\nrq3r1k/6pp/2ppQ2N/n4p2/B2P4/P1R4P/1P3PP1/5bK1 w - - 5 24;1309;2;1\nq3r1k1/5pb1/1p1p2p1/pP2P3/1n6/1P2P1Pp/PB1QB2P/R4RK1 b - - 0 20;969;1;27\n2k2b1r/ppp2Qpp/2n5/8/7P/6B1/P4PP1/qN3K1R w - - 0 18;1178;1;24\n2r4k/4P1pp/8/Q2p1p2/3Pp3/8/5qPP/2r3RK w - - 1 38;1235;2;0\nrn2kbnr/pQp1pppp/2q5/8/3P4/2NbB3/PPP2PPP/R3K1NR w KQkq - 3 9;1013;1;25\nr4rk1/p3b1pp/1qn1p3/5p2/1p2N1Q1/P7/1B3PPP/1R3RK1 w - - 0 19;1069;1;23\n8/6p1/1R6/r4pkp/8/5KP1/7P/8 w - - 0 42;990;1;26\n5rk1/1b1nb2p/4p1p1/6qn/r7/2BB3Q/PPP3PP/4RR1K w - - 0 22;1514;2;27\nrn1qkb1r/pp2n1pp/2pp1p2/4N3/2B1P3/P1NP4/1PP2PPP/R1BbK2R w KQkq - 0 8;833;1;25\nr1b2rk1/1pq2pbn/p1npp2Q/2p3N1/P1B1P2P/2NP4/1PP2PP1/R3K2R w KQ - 3 15;703;1;23\nr4rk1/pp6/6p1/2pp4/3Q4/3P3R/P1P3PP/2q1R1K1 b - - 0 23;771;1;26\n5b2/1R3Q1p/6pk/2Pp1p1q/2nPpP2/P7/5RP1/5K2 b - - 7 40;1586;1;26\n8/k2qr1nR/1p4QR/p1pP2p1/P7/8/1PP5/1K6 b - - 4 50;2133;2;26\nrn1R4/5k1p/2p2bp1/1p6/p3QP2/P5P1/5P1K/q7 w - - 4 27;1545;2;26\n1r1r1k2/5p1p/3q2p1/p1pPR3/8/1PQ5/P5PP/4R2K w - - 6 32;1237;2;22\nr4qkr/ppp2p1p/5pnQ/8/2ppN3/5P2/PPP2P1P/R5RK w - - 3 18;977;1;23\n8/1b5k/p3B3/4Q2P/3Pp2q/6r1/P4K2/3R1R2 b - - 1 40;1745;2;10\n2r2r1k/5p1P/p3pnpP/3pQ3/2q1NP2/1p6/PPP4R/1NKR4 b - - 0 28;1169;2;22\n8/4R2p/6p1/3N4/8/3kp2P/1r4P1/5K2 b - - 0 47;1480;1;26\n6k1/ppp1Rr2/3pQ1pp/3P4/2P5/1P6/q4PPP/6K1 b - - 3 26;1374;2;26\nrnb2rk1/p3qpp1/2p1pn1p/3p4/2pP2N1/3QP3/PPB2PPP/RN2K2R w KQ - 0 14;1205;2;23\nr1bqn2k/pp3Qbp/2p3p1/4B3/3P2p1/5P1P/PP4B1/R5K1 w - - 2 23;1472;1;27\n8/8/2p5/1b6/8/R6p/5K2/7k w - - 3 81;1038;1;26\n8/1p5p/4npk1/5N2/3Bn1P1/4PP1K/PP1r3P/5R2 b - - 11 33;1795;2;3\nr1bR4/5k2/p1p1q1p1/B7/1Q1b1Pp1/7r/P5K1/8 w - - 0 36;1110;1;27\nr3n2R/pp2pR1p/1n4pk/2pPq3/2P5/7P/P3B2P/7K w - - 0 25;1520;2;27\nr4r1k/pp4pp/1b3q2/2pQ4/3p4/P2P1nNK/BP1B4/R4R2 b - - 1 26;1549;2;27\nr1b2rk1/pp4pp/8/2qNQp2/3n4/1B4NP/PPPP2PK/R1B4R b - - 0 17;1655;2;10\nr1b2r2/ppk3pp/2pp4/8/2N1q3/8/PpPQ1PPP/4R1K1 w - - 0 19;1507;1;27\n5r1k/6N1/6Pp/2pb4/2P3P1/pP1KQ3/Pq6/8 w - - 0 40;1449;2;26\n1rbk3r/1pNp1ppp/pNnQ4/4Pn2/8/2P5/q3PPPP/3RKB1R w K - 7 16;1844;2;22\n6k1/pp2np1p/6pB/4Q3/4P1b1/5q2/PP2N2P/R2K4 b - - 0 27;1152;2;27\nr3k2r/ppp2ppp/4b3/2bpPq2/4n3/2NB1P2/PPP3PP/R1BQ1R1K b kq - 2 14;1427;2;22\n8/1p2Q2p/p1q2ppk/P2p4/5PP1/6KP/8/8 w - - 2 43;1668;1;26\nb4r2/p2n1kp1/1pqP4/5p2/3P1n2/2P3Q1/P1P2PPP/R3R1K1 w - - 0 19;1272;2;27\nr4rk1/ppp2ppp/5b2/q2n1b2/1P1P1p2/PB3N2/KP2Q1PP/RNB4R b - - 0 16;1330;1;1\n2r4k/7p/1p2b3/1p6/2r2B2/6R1/1P4PP/6K1 w - - 2 34;796;1;11\n2r3k1/5ppp/1pr5/3p4/p2Pn1P1/P2K4/1B1NR3/4R3 b - - 1 35;1550;2;7\n6k1/3q1p1p/1p3p1P/8/8/Q5P1/5P1K/8 w - - 0 38;773;2;26\n4rk2/p6p/5ppb/3n1r2/3PqP2/1Q2P3/PP1B2NP/4RKR1 b - - 2 27;1504;1;10\n4Nk2/pp3r2/3P2p1/4Qb2/7p/P5q1/1PP5/1KR5 w - - 0 40;1143;1;26\nr2q1rk1/pb1n1ppp/1p6/2pn4/2B5/3QP1P1/PP2NPP1/R3K2R w KQ - 0 14;1633;1;23\n6k1/p1rQ3p/1b2pBp1/4P3/6qP/8/PPP3P1/7K w - - 2 30;1456;1;26\n3R1b2/1pk1p3/p1p1B1p1/4p1q1/8/2P5/PP2QP2/K7 b - - 0 31;843;1;26\n3Q4/ppR2rk1/4R3/3Pp2q/1P2P3/4n1p1/P7/6KQ b - - 0 43;1154;1;27\n6k1/8/2p1PQp1/3p4/8/1B1q4/P3nPPP/7K b - - 0 41;1324;2;0\n2q3k1/p5rp/4N1p1/3pb1P1/7K/3bB1r1/Pp3Q2/5R1R w - - 6 32;1196;2;27\n8/5ppk/1pR3bp/1K6/P1Q4P/1P3PP1/8/4q3 b - - 7 43;1103;1;26\nr1b1k2r/pp3pb1/1qn1p3/3pP1Bp/Q5PP/3B4/PP2n1PN/RN2RK2 b kq - 2 16;1340;1;27\n3r3k/pQ5p/1p4p1/2p1qp2/2P5/1P3R1P/P5P1/2B4K b - - 0 30;1192;2;26\n1r4k1/p1p4p/1p3K2/4r3/2P4Q/3P1P1P/P1P1p1Bq/1R2N3 b - - 0 33;1094;1;27\n4r1k1/p4p1p/1p1p2P1/2pb4/8/1P1Q1n2/P4PP1/5K1R b - - 0 24;891;1;26\nrn2k1n1/pp3pp1/2pb4/7q/3KP3/3P4/PP3P2/RNBQ1R2 b q - 0 15;1390;1;27\n6rk/3q3p/3N1ppQ/2p2N2/2ppP1P1/2nP1K2/r5P1/7R w - - 2 39;1597;2;22\n5r1k/1pp3pp/1nn2p2/p1Qrpq1P/8/PP1PPP2/1B2BP2/2R1K2R w K - 1 20;647;1;23\n2kr2nr/1b1R1p2/1Qp5/5B2/5b2/5p2/PP3PpP/4R1K1 b - - 0 24;1307;1;27\n1nkr3r/1bpnq2p/pp1p1ppP/1N1Pp3/4P1P1/5P2/PPPQN3/2KR1B1R w - - 0 18;828;1;1\n4bkn1/2R5/4p1Pp/7P/p4P1K/8/8/8 w - - 1 52;1142;1;26\n4rk2/pp1Q3p/3p2p1/2pP4/2P5/2PK4/Pq3PPP/R6R b - - 4 24;976;1;26\nr1b3kr/ppp3bp/3q4/8/3n1Q2/8/PPP3PP/RNB2RK1 w - - 0 13;1165;1;25\n2R5/2P2pk1/6p1/7p/5P1K/6P1/2r4P/8 b - - 2 52;805;2;26\n2r1k1r1/pp3ppp/1q2p2n/3pP1Q1/6P1/B4N1P/P4P2/RN3K2 w - - 3 18;740;1;27\n2r3k1/1b3ppp/p7/2p5/3pr2P/1P1QP1P1/P4P2/2RRN2K b - - 0 28;1668;2;8\n2kr2r1/Q1p3p1/1npbq1b1/4N1P1/P4P1p/2P5/1P1P3P/R1B2RK1 w - - 1 24;1921;2;24\nr2qk2r/3nnp1p/2b1pbpB/1Np5/4P2P/5N2/PPPQ1PP1/1K1R3R w kq - 1 15;1004;1;27\n4rrk1/1pp2p1p/p1n3p1/4B3/1PB1Q3/P3P3/3q4/1K5R w - - 2 22;2034;2;8\n3r3r/Np2qp2/1p3n1p/p1nP2pk/P5RP/5P1K/3QBP2/8 w - - 2 34;1504;2;22\n8/8/3p1kp1/7p/1b3K1P/3BPPP1/8/8 b - - 0 39;1891;2;26\n2r3k1/R2R3p/5pp1/1p2p3/4Pb2/P1BK1P1P/1Pr5/8 b - - 10 39;1595;2;8\n7k/1pp3p1/3p4/p1b2p2/4q3/P7/1B1Q1P2/3K4 w - - 0 36;1424;2;26\nk2qr3/P7/5pp1/1QBp3p/3P4/8/5PP1/6K1 w - - 7 42;944;1;26\n3r2k1/pppQ2pp/2n2r2/8/8/4P1bb/PPP2P1P/RNB1R1KB b - - 0 14;1244;1;23\n8/7R/p4kp1/B3ppN1/3p2n1/1P4K1/1r6/8 w - - 4 45;1523;1;11\nr2q1rk1/4bppp/3np2B/pB1p4/1n1P4/2N3QP/1PP2PP1/2KR3R w - - 4 18;552;1;23\n6k1/4P1pp/p2B4/5PP1/7n/4q3/P7/2R4K w - - 0 42;1621;2;26\n5rk1/pp2Pp1p/6pq/Q3bb2/8/5B2/PPP3PP/R4R1K b - - 0 21;706;1;23\nr1b2rk1/pp2b1pp/1q2p3/3pPpP1/4nB1P/2P2N2/PPB2P2/1R1QK2R b K - 2 16;634;1;25\nrnbq1bnr/ppp1k2p/3p4/7Q/2B1Pp1P/8/PPPP2P1/RNB1K2R w KQ - 0 10;896;1;25\n6k1/4K2p/p3pPp1/3pb3/1p5P/8/8/8 w - - 0 39;741;2;20\n2B3R1/8/5p2/p3n2p/P4k2/1P3P1P/3r2PK/8 b - - 1 37;893;2;26\nr3k2r/p4ppp/2pbp3/3pq3/4N3/4Q3/PP1RBPPP/5RK1 b kq - 0 16;622;1;23\nr2q1r1k/1bp1n1pp/p2p4/1p2n3/1P3p2/P1P4R/B2N1PPP/R1NQ2K1 w - - 0 21;1514;2;22\n6k1/2R3p1/4p3/4NpRn/1p5P/8/1r2r3/6K1 w - - 4 41;1597;2;26\n8/2P2p2/q3bkp1/2Q4p/4B2P/6P1/7K/8 w - - 1 54;2074;2;6\n5B2/2R3pp/5pkb/8/5PK1/6P1/8/6r1 w - - 5 48;1158;1;26\n5nk1/pp3p1p/2pp2pb/5b2/2PP1QnP/BPN3PK/P4PBN/8 b - - 0 24;894;1;18\nr1b1k2r/1pqnb3/4p1N1/p1pp2p1/P2P2P1/2P5/1P2BP2/R1BQ1RK1 b kq - 2 17;794;1;27\n3r3k/2Q1bBpp/7q/2P5/5P2/6P1/Pr5P/4R2K w - - 0 26;1490;2;0\n2r5/p1P2p2/4p1p1/7p/5P1k/2R2K2/8/8 w - - 1 41;1817;2;26\n4r1k1/p3n3/1p3qPQ/3pNr2/3P4/8/PP3P2/4R1K1 w - - 1 33;1468;2;27\n8/pp6/3p1r2/4pk2/8/2q4P/3RQP2/4K3 w - - 2 50;1249;1;6\n3rr2k/2Q5/p2P2bp/1p2N3/8/6Pp/PP2q2P/5RK1 w - - 1 33;1517;2;27\nr2qr1k1/pp3p1p/6p1/1N1p2N1/4n3/4PQ1P/PP4P1/R5K1 w - - 1 22;893;2;23\n4N3/1B2kp1p/8/1NnRb3/8/P7/1P3r1P/1K1R4 b - - 1 31;1478;2;27\nr6k/2p2Q1p/2Bqp3/3p1pB1/8/1R2P2P/5PP1/6K1 b - - 0 30;890;2;26\nq4k1r/3Q2p1/Pp1Npp2/p3P2p/7K/P4P2/4nP1P/R7 b - - 1 28;1484;2;26\n5r2/2RP2bk/Q7/p3pp2/2B1P1pB/P3K1P1/2q5/8 b - - 6 42;2090;2;27\nrq3knr/p2R4/1p3p1n/4ppNB/4P3/2N4P/PPP3P1/2K4R w - - 1 23;1205;1;27\nr4r1k/pppR4/5Npp/6p1/4P3/6P1/PqP2P1P/5RK1 w - - 0 25;648;1;2\n6rr/p3k3/4P3/4p2p/4Nn1q/3P1KP1/P1P2P2/R4R1Q b - - 8 27;1652;2;27\nN2n1k1r/p3nppp/1p2p3/2q5/Q3P1P1/2p2P1N/PP5P/2KR4 w - - 0 23;800;1;0\n2rb2rk/1p1q1p1n/p2p2p1/n3pNp1/4P3/4R2Q/PPP2PPP/R1B3K1 w - - 0 21;1602;2;22\n2k4r/p1pp1ppp/1p1b1n2/6q1/7r/1P3QP1/P1P2P1P/1R3RK1 w - - 0 22;774;1;27\n6k1/1pp5/p2b2p1/7p/8/1PB2P1P/1PP1r3/6RK b - - 2 32;649;1;8\n1r2Rbk1/p1q2p1p/3p2pQ/3b4/N7/PP3N1P/5PP1/6K1 w - - 4 28;1196;1;23\n6k1/2pB1p1p/1p3qpB/p1b3N1/2PP4/3r1bPK/7P/4R3 w - - 0 31;517;2;8\nR4b1k/pp5p/5p2/7Q/5q1P/1PpP2R1/P1n2PP1/5K2 b - - 0 30;2103;2;26\nr1b2rk1/1p3pn1/p1n2qp1/3N4/4p1P1/4P1b1/PPP1BP2/R2QK2R w KQ - 0 18;750;1;23\nrnb3k1/pp4pp/2p1p2r/3pNp1q/2PP4/1P2PN1B/P1Q2P2/R5RK b - - 0 19;827;2;23\nr3r1k1/ppp1qppp/3p1n2/8/1bPP2b1/3B1N2/PPQ2PPP/R1B2K1R b - - 4 13;1876;2;8\n2k3rr/1pp5/1pnpp3/4p2n/P3P1N1/2PP1P2/1P1N1RP1/R2Q3K b - - 0 20;876;2;18\n3k4/4RBp1/8/n7/3P1R2/pP5P/P1r5/K7 b - - 0 39;1198;1;26\n8/8/1kpQ4/2rq4/R7/KP3p2/5P2/5b2 w - - 0 50;1402;1;26\nr6k/p2r1pb1/4P2p/Pq3p2/2p4Q/2B1P3/2P3PP/6K1 w - - 1 35;1457;2;26\n3Q4/p6p/1p2kqp1/8/3P2PP/2r2B2/5P2/6K1 w - - 1 45;1671;1;26\n2k5/1pp5/p3p1Q1/2qpP2p/5P2/4P3/PPP5/2K5 w - - 0 30;1175;1;26\nr1b1k2r/pp3p1p/4pp2/2p1q3/8/3Q1n2/PPP1NPPP/2KR3R w kq - 0 14;862;1;27\n5rk1/p6p/2Q5/3p2pq/8/4R3/PP4PP/6K1 b - - 0 27;858;2;26\nr2q1rk1/pppb1pp1/4p3/n7/3P4/2P1PNP1/P1Q2PP1/R3K2R w KQ - 0 15;739;1;27\nr1b1k3/1p2bp2/p1p1p3/3qB1p1/3P1n2/2PBQ3/PP1N2PP/R4RK1 b q - 4 19;554;1;23\n2kN1b2/pp2n2p/1qn5/3pP3/1P3p2/P1N5/3B1PrP/R2QK2R b KQ - 0 18;791;1;27\nrnbq1b1r/p3p3/1kp1P3/1pNp1N2/1P1P4/Q7/P1P2PPP/R3K2R w KQ - 3 20;1189;1;27\nr2q1rk1/pp2bpp1/1np1p2p/8/1n1QP1b1/1P1P1NP1/1B1N1PBP/R1R3K1 w - - 5 16;802;1;23\n5rk1/4rRpp/2p5/3pQ3/3P2P1/1Bq1P3/P7/6K1 w - - 0 37;1276;1;26\n3qr1r1/pp5k/2p1b1n1/2P1BQ1p/1P1p2pP/3B2P1/P6K/1R4R1 w - - 0 36;1182;1;27\n8/3b4/3Pn3/1p2B1k1/4Kpp1/3B4/P4PP1/8 b - - 1 38;1785;1;26\nr1b2rk1/ppqpbppp/4p3/8/2BNP1n1/1PN4P/PB2QPP1/R4RK1 b - - 0 12;582;1;27\n8/1k5p/pp6/7p/P2p1P2/1QqP4/1RP2RPP/7K b - - 2 32;857;2;26\n6k1/1q5p/p4Rr1/4r3/5Q2/2N4P/P2B2PK/3R4 b - - 0 33;884;1;27\n1k1r2nr/1pp2ppp/8/1NBqpb2/Q7/P1P5/5PPP/R3KBNR b KQ - 0 16;1220;1;25\nr2q1rk1/ppb2ppp/2n2n2/2p1pN2/2PpPP2/3P2QP/PP4P1/R1B1KB1R w KQ - 5 13;575;1;23\n4r2k/6pp/2Q3b1/8/P2Pp3/4P3/1q4rP/R4R1K w - - 0 29;885;2;0\n3r2k1/1p2pp1p/6p1/3P1q2/8/3Q3P/PPr2PP1/1R1R2K1 b - - 4 26;890;2;26\n2k3nr/1pp3pp/p3q3/2Q1pp2/8/5PN1/PP3PKP/2Rr4 w - - 0 23;1260;1;24\n2R5/3nr1pk/1p2p1Rp/4B2P/p4PP1/8/2Pr4/6K1 w - - 1 43;1774;2;8\nr2qkb1r/pQp1p1pp/4Pn2/6P1/2p5/2N5/PPn1KP1P/R1B2B1R b kq - 2 14;1473;1;25\n8/2R3bp/r2pBkp1/3P2n1/2P2p2/6P1/8/4B1K1 w - - 0 38;1337;1;26\n8/p3k3/1p1pBpq1/3P4/4b3/P3Q2P/6P1/7K b - - 8 40;676;1;26\n2k5/pp3p2/2p1rp1b/q7/3P2Q1/2P5/P4BPP/R2KR3 b - - 0 25;1170;1;27\n8/6p1/3N1p2/5Pk1/6P1/6K1/2r2P2/8 w - - 0 43;1603;1;26\nr1bk1bnr/ppp2Bpp/2p5/4Q3/3nP3/8/PPPP1PqP/RNB1K2R w KQ - 2 9;703;1;25\nr1b2k1r/1pp3p1/1N1p1n2/p7/P1B1q3/BP4Pp/5P1P/R2Q1RK1 b - - 0 19;858;1;27\nk2b2q1/8/2pQ4/pp6/2PPR3/PK6/1P2p3/8 b - - 1 46;1197;1;26\n8/2p5/7p/1B3p1k/4bP2/4R1KP/2r5/8 w - - 1 46;875;1;26\n7Q/1r4q1/4npk1/1p1p4/2pP3R/Nn4PP/1P3P1K/8 w - - 5 39;1361;1;6\n1b1r2k1/1p4p1/p5rp/P1PN4/2P1pP2/1Q3n1R/5P2/R1B2K2 b - - 0 27;2062;2;7\n1nb2rk1/1p1pppBp/2p3P1/8/3P4/8/r1PQ1PP1/qNKR1BNR b - - 0 15;1163;1;25\n4rk2/1p1b3p/p1p3p1/2P2p2/PP1q4/1B4Q1/5PPP/3R2K1 b - - 3 30;640;2;0\nr3n2k/ppp3bp/3p1q2/3Pp1NQ/2P5/2NK3P/PP3r2/R1B3R1 b - - 0 18;1990;2;27\n4kr2/5ppb/p6p/3QPP2/1q4PN/1Pp5/2P4P/K3R3 b - - 0 28;863;2;26\n2k4r/1pp2pp1/4p3/QNn1P3/4q1P1/4P2p/PP2BP1P/6K1 w - - 1 25;1468;1;24\nr1b2r1k/p1q4n/2p1p2Q/1p3p2/3P4/2P4R/PPB3PP/4R1K1 w - - 5 25;1547;1;23\nr1bq1k1r/ppp1n1p1/3b1pQ1/5n1p/2B5/6P1/PPP2P1P/RNB1R1K1 w - - 2 14;800;1;25\n2kr1r2/p2pn3/1p1B4/6pp/2B1P3/4n2N/PPP3PP/2KR4 w - - 1 22;895;1;4\n8/kb4Q1/p1q1Bp2/1pp2P2/3p4/P2P4/1PP2KPr/4R1R1 b - - 1 31;1577;1;27\nkr5r/pp3p2/N1p1p2p/2n3p1/8/P6P/2q2PP1/1R2R1K1 w - - 0 27;897;1;1\n6k1/pb5p/1p2p1p1/5p2/1QrP4/4P1B1/P4PPP/2R3K1 b - - 0 26;835;2;26\n2r1r2k/pp3p2/2n3p1/5q2/3P3B/2P1p2R/PP3P2/R4BK1 w - - 0 26;800;2;8\nr6k/1p1q1B1p/p4p1Q/2b1pN2/P2p1n2/3P3P/1PP2Pr1/R4R1K w - - 2 24;1856;2;23\nr3kb1r/pp3ppp/5n2/q5B1/2PpN3/1P1Q1N2/bKP2PPP/R4B1R b kq - 0 14;1623;1;27\nk6r/pp3pp1/7p/5B2/8/1PR1R3/5PPP/q2Q2K1 b - - 0 25;420;2;26\n3r1k2/pp2ppbQ/5q2/8/4nP2/6R1/P7/6RK w - - 0 38;1765;2;22\n8/1Q3ppk/8/4P2p/7P/7K/2R1q2P/8 b - - 0 50;1474;1;26\n6r1/pp5k/2pp3p/2b1p3/4Pp2/2PP1PNP/PPNQ3K/5Rr1 b - - 0 31;1747;1;27\nr1b2rk1/pp3ppp/2pb4/6Q1/2Bp3q/3P4/PPP2PPP/R1B2RK1 b - - 3 13;876;1;23\nr1b3k1/pp2qp2/2p1n2p/3pnQp1/3P4/1PPB2P1/P2N2PP/4R1K1 w - - 0 20;861;2;23\nr3k2r/ppp2pp1/2p5/7p/2B1P1n1/2NPP1q1/PPPK2P1/R2Q3R b kq - 2 12;1514;1;27\n6k1/1p3p2/2bP3p/2P2ppK/5PP1/R6P/1Q3R2/6qr b - - 1 48;2307;2;26\n5n2/5kp1/7p/4pP1P/p2pP1Q1/Pp1nbKN1/1Pr1R3/5B2 b - - 1 40;1700;2;8\n2r2rk1/1p4p1/3Qp1qp/pP6/P1PPNn2/5N1P/5PP1/R4RK1 b - - 0 25;1486;1;23\n2krr3/1ppq1pp1/1p5p/3p4/QP2n3/P1n1B1P1/4PPBP/2R2RK1 w - - 4 20;763;1;27\n8/7p/P4pk1/8/8/1p6/1P1p1PPP/1K2R3 b - - 0 39;537;1;20\nr4rk1/2R3np/p3p3/q3P3/1p4Q1/8/PP3PPP/5K2 w - - 0 24;649;1;26\nr1b1k1r1/p7/4pQ1p/2q5/4p3/2P5/P1P2PPP/3R1RK1 w q - 0 20;1432;1;27\n1r5r/p2nq1Bp/3pkp1n/2b4Q/4P3/8/P4PPP/R4RK1 w - - 0 19;1536;1;27\n1r6/3pkp1p/p1b1p1p1/2P5/2B1P3/K1b2P2/P5PP/3R3R b - - 8 24;1486;1;26\n3q1r2/4R1bk/p3Q2p/4Nrp1/2p1R3/2P3B1/P4PPP/6K1 b - - 2 29;674;2;23\n8/q7/8/8/4Q3/1pP5/1P6/1K1k4 b - - 3 60;845;1;26\n6rk/2R3pb/3NR2p/8/6p1/6KP/3r1P2/8 w - - 0 36;876;1;1\nrnb2rk1/ppp2ppp/3b4/3Bq3/4Q3/2N5/PPPP1PPP/R1B2RK1 b - - 4 9;788;1;23\n8/5kPK/8/8/6P1/1R6/8/2r5 b - - 4 82;635;2;26\n4kn2/1p3q2/2pKp3/p3Q3/P1P2P2/1P6/2B5/8 b - - 3 50;1677;1;26\n8/3Q2pp/5pk1/8/4pPP1/P5KP/2qp4/8 w - - 4 46;1713;2;26\n1r5k/6bp/6p1/2PQ4/4P3/KN3R2/2q5/5R2 b - - 1 38;1734;2;27\n6r1/k5q1/1p1Q1b2/pP2p3/P3P2p/1N5P/5PB1/R1R3K1 b - - 0 30;444;1;27\n5r2/1p5k/8/8/r1qB4/6P1/4QPKP/8 w - - 0 32;1782;2;26\n1r5k/p5rp/4R3/3p4/2pB4/7P/P1q2PP1/4R1K1 w - - 0 29;651;2;26\n1k5r/1pp2Q1p/p3Rp2/3p2p1/P2P4/2Pb1K1P/1P3P1q/R7 b - - 0 28;1756;1;26\n3r3k/pp2Q1p1/5p1p/8/4B3/P1P5/KP2q3/8 w - - 0 30;656;1;26\n5rk1/3p3n/b1p3pP/4p3/p3P2P/3P2Q1/qrPK4/2R4R w - - 0 28;899;2;23\n3r3k/pp4p1/1np1R1Bp/5P2/3P2q1/2PKQ3/P1P5/8 w - - 1 37;754;2;26\n7k/4p1rP/3p2P1/3Pq3/1r6/1B6/PpP5/1K3R2 w - - 0 38;799;2;20\n8/p7/3N4/2pP4/2P5/1P2kr2/P3n1KR/8 b - - 2 50;2046;2;26\n3k4/1P6/2Q2p2/4p3/4P1q1/7p/5P2/5K2 b - - 6 51;1506;1;26\n5r2/pp2R1bk/3q2p1/5r1p/2p3b1/2P1QN2/PP3PP1/R1B3K1 w - - 0 23;1856;2;27\n5rk1/p4p1p/1p2b1p1/2b1P3/5P2/N2B2P1/nP5P/R3B2K b - - 0 24;781;2;5\n1r4rk/1R3Qpp/p3p3/3pN3/3P2PP/2P3PK/P3q3/8 w - - 3 35;1962;2;1\n2r2knQ/1b3p2/p5pp/2n5/1N2PpPP/5P2/qPP5/2KR1B1R b - - 0 19;1618;1;27\n6k1/ppp2ppp/8/2P5/3q1R2/1Q6/PPP3PP/7K b - - 0 29;698;2;26\n8/8/8/p1p1Np2/PkP2P2/1P4b1/2K4p/8 w - - 0 42;1861;2;26\nr1q2rk1/2p1bppn/2n1b2p/p2pP3/3P4/pP1Q1NNP/1BB2PP1/R3K2R w KQ - 0 19;503;1;23\nr4rk1/1b1nbppp/p1q1pn2/4N3/N1pP4/4P1B1/P3BPPP/1R1Q1RK1 b - - 5 16;556;1;23\n5k1r/3nrp2/3p4/3b4/2p3P1/1pQ4P/1P3K2/1B6 w - - 5 44;523;1;26\n1rrn3k/4pB2/1p4pB/qN6/7R/1b6/P5PP/1R4K1 w - - 0 27;1864;1;27\n7k/pp4pp/2p4r/2Pp1q2/1P1Pp3/P5QP/6P1/R6K w - - 0 44;869;2;0\n1k2r1nr/1ppQ4/p6p/3P4/2R5/2N5/P4qPP/1R1K4 b - - 6 27;1560;1;27\nrnb1rk2/pp4b1/2p2qQB/8/2BP2p1/1PP5/P4P2/2KR4 w - - 2 23;1688;1;27\n7r/5ppp/4b3/pQ2qkB1/1b2p3/3B4/1P2KP2/6R1 w - - 2 34;1903;2;22\n8/R6p/p3r1pk/1p6/2b2PP1/7P/7K/8 w - - 1 33;864;2;26\n8/1pp4R/p2k1p2/8/K5P1/2rn1N1P/P5B1/8 b - - 0 31;1771;2;26\n8/2R4p/pk6/3Q4/3p2p1/4q3/P1r3PP/7K w - - 0 35;1800;1;14\n8/pb3p2/1p1p1kp1/1PpPp3/2P1PP1r/3B1P1q/P4K2/R3QR2 b - - 1 32;1946;2;27\n7k/pb3pp1/1p1q3p/2pp4/3P1b2/2PB3P/PP1nQPP1/5NK1 w - - 0 24;595;2;23\nrn4k1/ppp2pbp/4N1p1/3pq2r/8/1B2P3/PPP1QPPP/R1BR2K1 b - - 0 15;717;2;23\nr2q2k1/1b2p1b1/p2p2Q1/6N1/3n1r2/8/Pp1N3R/1K6 w - - 0 22;1730;2;22\nr2q1rk1/1b1p1ppp/p7/1p1p4/3P4/P1PQ1N2/1nB2PPP/R3R1K1 w - - 0 18;519;1;23\n3k4/p2b4/2q5/K2Q3p/1P1BP3/8/P5P1/8 b - - 4 42;1554;1;26\nr4k1r/1pq1n1pp/4Rp1B/pBbp4/P7/1PpP3Q/5P2/1N2K3 w - - 0 23;1733;2;27\n3r3r/ppp3p1/4Rp2/8/1N6/BP4P1/2P2P1p/1k3n1K w - - 0 36;862;2;9\n4k1r1/1p3N2/p1n1p3/2Rp3P/Q2P1KP1/5R2/PP6/6q1 b - - 0 38;1868;1;27\nr3r1k1/1pp3pp/2n5/p1b5/2PqN1Q1/P1N5/1P1P1PPP/R1B1R1K1 b - - 0 15;1995;2;22\n1k1rr3/1p3ppp/2p1qn2/Q7/R5b1/2NB4/PPPK2PP/R7 b - - 6 20;1846;1;27\n5Q2/8/1K4p1/7p/6kP/8/6P1/4q3 w - - 2 54;1731;2;26\n5Q2/pp4pB/2p4p/3rk3/3q4/P5P1/P3rPKP/8 w - - 6 35;1682;1;26\n8/8/4R3/8/8/5Pr1/5k2/7K b - - 0 40;1411;1;26\nr1b1r1k1/ppqn1pbp/2p3p1/8/2PPp1n1/1P2P3/PBQNB1PP/R2N1RK1 b - - 1 14;642;1;23\n2Q5/kp3Pp1/pq6/6P1/2p5/2P5/PRP1r3/K7 b - - 0 35;878;2;26\n7k/p4Bpp/1p2Q3/3r4/6PK/8/PP2q1bP/R7 b - - 2 34;1629;1;26\nr4rk1/2pb1p1p/pb1p2p1/1p6/3PPq2/1BPK1P2/PP4Q1/6RR w - - 0 24;1990;2;22\n6k1/5p1p/1p3b2/8/pP2B3/Pb2P3/5rPP/1KRN4 b - - 1 31;1464;1;11\n5Q2/7k/3p2p1/1ppNp1P1/p2n4/P2K4/1PP1r3/8 b - - 4 29;1921;2;7\nr1b1r1k1/1pp2p1p/p4ppB/q5N1/3P4/2P5/1P1K1PPP/3RR3 w - - 0 19;596;1;9\n3r2k1/pp3ppp/2b5/5P2/4NQ1n/1P4Pq/P3NR1P/R1B3K1 b - - 0 25;1886;2;23\n6k1/p4ppp/1pp2n2/3p4/3q4/3N2QP/PPP2PP1/6K1 w - - 0 24;810;2;26\n5R1Q/ppqkr3/2p5/8/8/7P/P5P1/7K b - - 2 42;651;2;26\n8/5ppk/2p4p/2BpP3/3P1Q2/3q3P/3N1P1K/5b2 b - - 0 44;872;2;26\nr1b1r1k1/1p3ppp/pq1p4/3Qp1b1/P1B1P3/1P6/2P2PPP/R3R1K1 w - - 0 16;796;2;0\n5rk1/R6p/2p3n1/2Pp2N1/3P4/6Pb/Q6P/5qNK b - - 0 34;1684;2;8\n2b1k2r/3p1p2/p3p2p/3pP3/1b1Q2K1/6B1/P1q2PPP/R4B1R b k - 0 19;1799;2;27\nr1r3k1/1p2qpp1/p1np4/4pPNQ/P1bpP2P/2P3P1/1P4K1/R6R w - - 1 23;865;2;23\nr4r1k/bpp1n2p/p3B1p1/P7/5B2/2P5/1P3PPP/5RK1 w - - 0 25;836;2;5\n3q1b1r/7k/2R3pp/p1p2Q2/1r6/5P2/PPP3PP/2K4R w - - 0 27;1745;1;27\n3Q4/p2b2rr/1np1p2k/1p1pPp2/8/1PK1P3/P1P5/3B4 w - - 8 36;1726;2;26\n2k2r2/pp1rp1p1/4q3/2p1B2p/8/1P2P2P/P1P5/3R1RK1 w - - 0 25;635;2;9\n4r1k1/ppp2ppp/8/3P1q2/3P1P2/1Q5b/PP4BP/4RKR1 b - - 0 21;1740;2;10\nr2q1k2/1p2Nrb1/3pp3/3N2Q1/p1PpP1p1/P7/1P3PP1/1K5R w - - 2 29;1709;2;22\n7k/1p2qp1p/2p1p2P/2P4p/p2PB1n1/P5Q1/KP6/4r3 w - - 5 33;1891;2;26\n4r3/pp1R4/2q1pkpQ/2p1n3/8/2P5/PP3PP1/2K5 w - - 0 33;1822;1;10\n1k4r1/pp6/P7/1Pp5/2QppN1p/7q/2P2K2/R4R2 b - - 0 36;1700;1;26\nr4rk1/p4p1p/bqpp1Qp1/8/5P2/2B2N2/P5PP/2R1K2R b K - 2 17;1679;2;27\n3r1k2/pp3pbQ/2p2q2/2P2N2/1P6/P3P3/5PPR/4K3 b - - 4 27;1979;2;26\n1kr4r/pp2Np2/1nqp1p1b/4p2p/4P2P/6N1/PPPRQPP1/2K4R b - - 3 17;1674;1;24\n8/6Q1/4B1p1/1p4k1/4q3/5pK1/5P2/8 b - - 0 44;1739;2;26\n6k1/pb2b1pp/7B/n3p3/B2pN3/3P1rRK/PPP2r1P/R7 b - - 3 27;1751;2;27\nr4r1k/1bp1npp1/p6N/1p1p4/4n2R/P1BBP3/6PP/4K3 w - - 3 26;1943;2;19\nr1b2rk1/pp3pp1/1bn2q1p/3Np3/2B5/3P3P/PPP2PP1/R1BQK2R b KQ - 1 12;613;1;25\n2k4r/ppp5/2n2q2/3p1p1p/2PPN3/4Q1p1/PP2B1P1/R4R1K b - - 0 28;863;2;23\n8/pb3q2/6k1/3P1N2/P1P1pP1Q/3p3P/6PK/5q2 w - - 1 40;1952;2;22\n4r2k/pp4pp/2p3q1/5R2/2QP4/4r1P1/PP3R1P/4b2K w - - 2 34;747;2;0\n8/8/4qkp1/2Q5/5P2/2P1r3/6RK/8 b - - 5 49;2025;2;26\n2rr2k1/R4pp1/1p2p2p/4P3/5Q2/3q1N1P/5PPK/8 w - - 0 29;825;2;26\n2k2b1r/ppp2Q2/4pp1p/8/8/3R1P2/PPP3qP/1K5R b - - 0 19;795;2;24\n2r2r2/pp3pkp/1q2b1p1/7n/3N3R/P1Q5/2P1N1PP/5R1K w - - 3 23;2243;2;18\n5r1k/N1p3pp/p2p4/8/Pp2p1b1/8/1PPQ1qPP/R1B1R2K b - - 3 19;869;2;0\n8/4kp2/1p4p1/pPbBK1P1/1r6/1P3P2/2R5/8 b - - 2 46;1599;1;26\nr4rk1/1bqnbp2/3p1npP/ppp1pQp1/4P3/P1NPB3/BPP2PP1/2KR3R w - - 0 17;1899;2;23\nr1bqr1kb/1ppn3p/6pB/p3pp1n/2PP4/2N1P1P1/PP1Q1PBP/R3R1K1 w - - 0 14;848;2;4\nr1bq4/pp1p3p/n1pP1p2/k7/P1Q5/4b3/2P3PP/1R5K w - - 2 25;1763;2;10\nr1bqkb1r/pp2pppp/5n2/4N3/2B5/2n5/PP3PPP/R1BQK2R w KQkq - 0 10;1460;1;25\n1b3r1k/5ppp/PpN5/1PpBq3/4P3/5p1P/4QP2/R2R2K1 b - - 1 29;1758;2;23\n4k3/1p6/pP1PK1p1/2B2p1p/1P3P1P/8/6r1/8 w - - 3 40;830;2;26\n7k/1pr4r/2p2Np1/2np1nP1/5P2/qpN1P3/P1P4R/1K5R w - - 0 31;662;2;2\n5r1R/pp1b3R/4p1k1/3pPr2/2p5/2PnPN2/PP2K3/8 w - - 0 27;1921;2;27\n4r3/q6k/6pp/5p2/2P2P2/1PQp4/P2R2PP/5K2 b - - 9 33;1937;2;22\n1k6/p7/Pp2R3/8/8/3r3p/4p1rP/2R4K w - - 0 45;755;2;26\nr1b2k1r/pp3Pp1/2p5/4N3/4P1n1/2NP2q1/PP2Q1B1/R1B1R1K1 b - - 0 16;1694;2;22\nrnb1kbnr/pp3p1p/2p3p1/4q1B1/4P3/2N5/PPP2PPP/R2QKB1R w KQkq - 0 8;512;1;25\n8/ppp3br/2k2qp1/3R1b2/1P6/4N3/P1P2PPP/5RK1 w - - 0 23;1893;2;13\n4r3/pQ3ppk/2PB1q1p/5N1P/2P1r1P1/8/PR6/K6R b - - 0 28;866;2;27\n5R2/pp4p1/4knNp/8/5P2/3Q3P/6PK/2r1q3 w - - 9 32;1520;1;26\nk7/1Rr4r/2PQpq2/3n4/4p1B1/7P/P5P1/7K w - - 1 39;1460;1;27\nr2nk1r1/1pp3q1/3p1p2/pNbPp2p/PP2P2B/2P2N2/3Q1RP1/R5K1 b q - 0 21;1416;1;23\nr1b1r1k1/pp1p1pbp/2n3p1/2BQ4/1P6/2PP3P/P1qNNPP1/2R1K2R b K - 4 17;1524;1;27\n3Q4/p4pkp/3p2p1/1q2pP2/1p3nP1/1P3P1N/P1r4P/5R1K w - - 5 30;1715;2;26\n6k1/p5p1/5b2/2r5/6p1/3R4/PP3PRP/6K1 b - - 0 38;407;2;0\nr6k/ppR3pp/4B1r1/4p3/1B2p3/8/PP3PbP/3Q1RK1 b - - 0 20;1688;2;9\n7k/2q4P/p1bp1rr1/1p1Qpp2/8/3B4/PPP5/1K4R1 w - - 0 41;1721;2;20\n3r2kr/p1Q2pp1/3q3p/3B4/3BP3/2PK4/P7/8 w - - 4 32;1650;2;10\nr2q1r1k/pp3ppB/2p5/3p3R/3P2b1/2P2R2/PPQ3PP/6K1 w - - 3 20;1658;2;19\n3r3r/k1N4q/7p/3bB1p1/4np2/1R5P/P1P3P1/4R1K1 w - - 0 28;1801;2;27\n6k1/ppp3pp/3p2Rr/4pq2/2P5/1P1PPP1P/P3Q2K/6R1 b - - 0 26;1415;1;26\n4r3/8/4q1p1/8/1Q6/3pk1P1/P6P/5K2 w - - 7 39;1449;1;26\n8/5B1p/1q1p3k/1pr2Q2/p3PbP1/P1P5/1P5P/7K w - - 1 36;1754;1;26\n3rq2r/p4pQ1/2p1k1p1/3bNnP1/5P2/2PBP3/P5P1/4K2R w K - 3 24;1444;1;27\nr2q2k1/3nrpp1/p6p/2p4n/3p4/1PN1Pb2/P1Q2PPP/1BRR2K1 w - - 0 19;735;2;23\nr3r3/1bp2Bbk/1p6/p1n1p1qp/P1N2P2/2P1P2P/QP4PB/2RR2K1 b - - 0 25;584;1;23\n6k1/8/3N4/2p1P2p/2R4P/4R1PK/rr6/8 b - - 1 49;610;1;26\n6R1/8/2p5/4p3/PP1bP3/4k3/2B4r/3K4 b - - 6 49;605;2;26\nr1b2rk1/2q2ppp/1pn1p3/p2pP1N1/5P2/P2Q4/1PP3PP/R1B1K2R w KQ - 0 15;576;1;23\nr4k2/2p3R1/p1pp1P2/4n3/4PN2/2K5/PPP4r/8 w - - 0 33;1848;2;15\n1r2kr2/2p1b1p1/3pPp2/5P2/p6q/2p5/PP4Q1/R2N2K1 w - - 0 32;1704;2;27\nr4kr1/p2n1pq1/2pNp3/2Q5/4P3/1B3P1P/P3n1P1/3R3K w - - 0 32;2167;2;19\n3r2k1/ppp2ppp/b1p5/8/8/4qB1P/PPP2PP1/3R2K1 w - - 0 20;879;2;0\n5r1k/p1p5/1p5p/2P1N3/PP1p1r2/3Pn3/4R1PP/R5K1 b - - 0 40;787;2;26\nr1b2rk1/pp4pp/2pbpn2/3pNp2/2PPnP1q/3BP3/PP4PP/R1BQ1RNK b - - 2 12;1729;1;1\n6Q1/8/4p2k/2q2n1p/6nP/3B4/2P3P1/4R2K b - - 10 36;1486;1;26\n6k1/2Q1n2p/p3q1pB/1p3p2/2pP4/2P2KP1/PP5P/8 w - - 6 34;870;2;26\nn5k1/p4ppp/4p3/8/2qP4/2B1PNP1/5P2/1R2K3 w - - 0 27;801;2;0\n6k1/5rpp/3Q4/2Pp1N2/1Pp2P2/4K3/1q4PP/r2RR3 b - - 14 33;1848;2;27\n3n1nQ1/1b2k3/4B2r/3pP3/2pP4/2P5/3qN1PP/1q3RK1 w - - 0 31;1932;2;27\n3r2nk/p4pp1/4bq1p/2p5/4Q2R/P2B3P/2P2PP1/6K1 w - - 6 27;614;1;27\nr1b4k/ppp2R1p/6pB/2Pn4/4n3/2b5/P3B1PP/R5K1 w - - 0 22;566;1;9\n3r3r/4b3/2Bpkp2/8/1R5p/q7/P1PQ2PP/7K w - - 0 27;1519;1;27\n1r5k/pp2b2p/6p1/2P2p2/2B1p3/4P3/P4PPP/4BK2 w - - 0 24;842;2;5\n5rk1/ppR3p1/8/8/5n2/6P1/P5PP/5RK1 b - - 0 27;897;2;0\n6k1/6Pp/8/8/1p2p1N1/p4r2/PBn1K2P/8 w - - 0 38;1462;1;26\nq5k1/5ppp/2Q1pn2/4N3/3P4/1p2P3/1P3PPP/6K1 b - - 0 22;635;2;0\nr7/p4Q2/1pk2p1p/2p2p2/6q1/1P6/P5PP/3R3K w - - 8 37;1401;1;26\n5rrk/1bp4p/3p4/1p2p3/8/2P3PP/1P3R1K/R2Q2N1 b - - 0 31;451;1;9\n1R6/2pk2pp/Q2p3n/3Pp3/N3Pr2/5b1P/2P2qP1/7K w - - 0 27;2290;2;27\n8/8/r4p2/5R1P/8/4k3/8/4K3 b - - 0 61;444;1;26\n2b3k1/6p1/1pn1p1Bp/1N1p3r/3N1P1q/4Q3/r3R2P/6RK b - - 0 27;1710;2;22\n4r2k/3b2bp/1R4p1/2p5/2Pp1p2/B2P2P1/2Q2P1P/5K2 b - - 0 30;841;2;9\n3R4/1p6/p2R3p/4kpp1/4pN2/8/Pr3rPP/6K1 w - - 16 46;1930;1;26\nr1b1n2k/ppq2Qpp/1n1b4/2pp4/8/3P2P1/PPPN1PBP/R1B3K1 w - - 0 17;807;2;23\n4kb2/4r1p1/1q1pP3/p3pQP1/Pp3n2/1N6/1PP5/2K4R w - - 1 27;1859;2;22\n6rk/pp6/6P1/1bpqr3/8/8/PPP1p1Q1/1K2R1R1 w - - 0 39;1703;2;27\nr4b1r/pp2k1pp/1q6/4P3/6Q1/P7/1P2KPPP/n1BR4 w - - 2 19;1533;1;27\n6k1/2R5/4q1p1/4Pp1p/8/2p1P1R1/Q3K1PP/3r4 b - - 1 47;1883;2;26\n6k1/p1Q2p2/5P2/2pb4/7K/7P/8/5q2 w - - 0 36;1923;2;26\nrn3knr/p3bpq1/8/1B2p3/P3P1bp/B4N2/2P2PP1/R2Q1RK1 w - - 0 17;1505;1;27\n2r2r1k/1b5p/p2p1pR1/1p2B2Q/4n3/1P2RP2/P5PP/6K1 b - - 0 26;790;2;23\nR2Q4/1p1b1ppk/7p/3p4/4p2P/2B1P1q1/8/5K2 b - - 1 40;1664;1;26\nr2q1b1r/p3k2p/4pp1n/P2pP3/BnpP4/5Q1P/1P3PP1/RN3RK1 w - - 0 18;529;1;27\nr1b4k/5r1p/p2p2pB/P1pPp1Q1/2n1P3/2P4q/2B2P2/R3R1K1 w - - 0 38;713;2;23\n8/pp6/2p2kpp/2Pp1p2/1P3K1P/2bP1PN1/P4P2/7B b - - 0 37;1625;1;26\n3r4/p1k3p1/5pp1/2P1p3/n2nK3/P3B3/2P3PP/R6R b - - 1 27;2038;1;26\n2r1r3/1R4Qp/p3p3/k2p4/3P4/8/PB4PP/4qR1K b - - 2 28;489;1;27\nQ7/pp2kp1B/3p4/8/1PPKNp2/P4qp1/8/8 b - - 1 35;1766;2;26\n5k2/p4pb1/1p4r1/2p5/3r4/5Q2/PP5P/4R2K w - - 0 35;858;2;26\nr1bQr1k1/ppp2ppp/8/8/PPB2q2/2P2N1P/5KP1/RN6 w - - 2 17;516;1;23\n7k/1p2np1p/p3p2B/4P3/8/P5R1/2r2r1P/K5R1 w - - 4 26;1961;2;22\n2r1r3/1bqn2b1/6k1/p1p1p1pp/3pP2P/2P2Q2/PP1N1PP1/2R1R1K1 w - - 0 25;1785;2;27\n8/6pp/1Q2pp2/3bk3/2q4N/4K3/5PPP/8 w - - 10 36;1658;2;26\n4r2k/4q1pp/8/1bQ5/1P6/r3BP2/2R2KPP/4R3 b - - 0 30;1818;2;27\n2Q5/1p2r2k/p7/P2q3p/8/6P1/1P3R1P/5K2 b - - 4 45;1506;1;26\n5rk1/p5pp/1p6/2NP3q/3p2n1/6Q1/PP4P1/R1B1N1K1 b - - 0 23;1835;2;22\n6r1/pp6/3pN1pk/3Pp1b1/4P3/5R2/PPP5/1K6 w - - 3 29;580;2;3\n1r2r1k1/pbp2p1p/6p1/2p1P1Q1/N2b1Pq1/3B4/PPP3PP/1R3R1K b - - 5 20;1556;1;23\n5rk1/5r1p/2p3pQ/p2b4/5R1P/P1B3P1/1P3R1K/3q4 w - - 6 37;2126;2;22\n1Q4bk/pN4np/1p3qp1/2p5/8/8/P1PR1PPP/6K1 b - - 0 29;840;2;0\n8/8/5n2/6k1/1Pq5/P3PKp1/5PQp/7B b - - 13 54;1534;1;26\n1r6/5k2/2N2p2/P1R5/4P3/3P4/r7/4KN2 b - - 8 47;788;2;26\n5k2/4qppp/4p3/1B1n4/6P1/Q6P/5P2/6K1 w - - 2 39;847;2;26\nr1b2rk1/pp1pQppp/2p5/8/2BP4/N1P5/PP1q1P1P/4RK2 w - - 1 16;1684;2;22\n3k4/2prrp2/1R2p1pp/p7/P2PP3/4K3/7P/2R5 w - - 1 36;511;1;26\nr1b2rk1/pp2bppp/1q2p3/3p4/6P1/2nQPN2/PPP2PP1/R3KB1R w KQ - 0 15;1551;1;23\n6k1/R5pp/8/4N3/p4P2/1rn3PP/5K2/8 w - - 3 30;762;2;26\n5k2/4N1p1/2N1pp1p/3p4/p1b2Q1P/2q3P1/8/6K1 w - - 0 46;1696;2;26\n2k2b1r/1ppr1p1p/pn1p4/5PB1/1P1P2n1/2NB2Pb/P1P4P/R3R1K1 w - - 1 20;711;2;8\n1k1r3r/pp3pp1/3bpqbp/8/6QP/2P1BB2/PP3PP1/2KR3R b - - 2 20;1870;2;22\n8/pp2Qp2/5Pk1/3P3p/5qpK/8/6PP/5B1R b - - 2 34;1989;2;19\n8/1p4k1/4R1P1/3Pn2p/P1P5/1P2p3/5r2/4K1R1 b - - 4 48;1822;2;15\nr1bq2k1/pp3pp1/1npb3p/8/1P1Q4/P1B3P1/2P2P1P/R4RK1 w - - 1 18;535;1;23\n3r4/2B2kpp/5n2/ppb5/8/1KPb2P1/PP5P/R2R4 b - - 0 23;1466;1;27\nR7/2kr1p1p/3Np2p/2p1P3/2N1KPP1/2r3bP/8/8 w - - 3 36;1532;1;7\n1n2kr2/2q1bpQp/2bp3B/1p6/8/8/rPP2PpP/2KRR3 w - - 0 20;1756;2;27\n3r4/6R1/1p2Pk1p/2p2B2/P2r1P1P/8/1P4PK/3q4 w - - 3 43;1431;1;9\n2Q1r1k1/1Q2rppp/P4p2/8/3n4/P5Pq/5P2/R1R3K1 b - - 0 30;1782;1;27\nrn3r2/pp3p2/4pk1p/2p5/2pPQN2/1P2P3/P2K2R1/q7 w - - 1 23;2289;2;22\nr2qk1nr/1p3p2/p1n1b3/2bB4/8/2N5/PPPPQ1PP/R1B1NR1K b kq - 0 14;1771;2;22\n6k1/5p1p/pq1p2pB/4bP2/1p6/1P3QnP/6RK/4r3 w - - 0 37;627;2;27\n2r4r/1b2pp2/p2p1n2/5P2/N3P1k1/1P5R/2P1N2K/5R2 w - - 7 36;1737;1;27\n3r1rk1/pb3pp1/1ppbpq1p/6N1/2PP3P/P2Q2P1/1P3PB1/R3K2R w KQ - 2 17;505;1;27\n1r1q1rk1/8/p5pP/1p1p4/7P/5bQ1/PPP2P2/2K5 w - - 0 26;862;2;26\nr4rk1/5p1p/pp2pq2/8/P4b2/3Q3R/1PP2PP1/R6K w - - 0 25;640;1;27\n1kb5/pp3pp1/8/1NQ5/4rq2/2P4P/P5P1/3R2K1 w - - 4 30;1486;1;26\n7r/np1q4/n2p4/kNpPp1p1/P7/2P5/1P1N1PPP/R3K2R w KQ - 0 19;1633;1;27\n6k1/1p1R4/p3r3/4p1p1/2P3P1/P7/1PP1nRP1/7K b - - 3 28;1443;1;26\nb1kr3r/2B2p2/P3q2p/QNb1N1p1/4np2/8/4B1PP/R4R1K b - - 3 28;1913;2;22\n8/p3R2p/2p5/3k4/1PpP3r/r6P/6K1/4R3 w - - 0 46;1603;1;26\n5b2/2r1qp1R/p1n2kr1/1p2pBp1/3pP3/PP1P1Q2/4K3/8 w - - 0 41;1595;1;19\n5rk1/Q5pp/4p3/3p4/4p1n1/PP2P3/KBr2q2/1R6 w - - 1 34;616;1;27\n3Q4/8/8/5kpp/2Q5/P2P3K/1P3bP1/5n2 b - - 2 42;803;2;26\nr1b2r1k/p1p2p1p/1pn2qpQ/3p4/6P1/2N5/PPP2P1P/2KR1B1R w - - 0 18;1843;1;23\nr4rk1/pb2npbp/1pqNpnp1/2p1N3/2P2B2/4P2P/PPQ1BPP1/3R1RK1 b - - 7 15;516;1;23\n6r1/5k2/1p3p2/pB1N4/P6P/2P2n1R/1P6/7K b - - 0 38;564;1;2\n8/5R2/6pk/8/1pr3PP/5K2/8/8 w - - 0 36;847;2;26\n1b1r1r1k/pB5p/1p5Q/2p1q1p1/8/1P6/P1P3PP/R4R1K w - - 2 26;878;2;23\nr5r1/5k1p/p1p1R3/3p4/3b3Q/7P/P1q2PP1/R5K1 w - - 1 20;1639;1;27\nr2qkb1r/1bp1n1pp/1p1p4/p1n1N3/5B2/PQN5/1P2PPPP/2KR1B1R w kq - 0 16;642;1;25\n7r/Q5p1/4bk2/2P2p2/4p2n/6pK/PPP2P2/R1B2R2 b - - 0 28;1442;1;19\nRr4k1/1r3ppp/8/8/4p3/4P3/1R4PP/6K1 w - - 0 32;893;2;0\nr2q4/2p5/pb1p4/np1k4/5Q2/7P/PP3PP1/4R1K1 w - - 0 39;1951;2;26\nN2k4/pp4r1/3pbp1p/2b1p2B/4P3/2N4P/PPP4P/R1B1RK2 b - - 0 17;1944;2;8\nr1r5/p2p1k1p/5Bp1/3p4/8/R7/1P3PPP/2R3K1 b - - 0 30;548;1;0\n3Rrk2/1bp3b1/1p3pp1/p1n4n/P1B1q2N/1P4P1/1BP1QP1P/4R1K1 b - - 0 21;1661;1;27\n1q4r1/5kN1/5b2/3p4/3P2Q1/2PB4/1r1n1P2/4R1K1 w - - 5 40;2138;2;27\n1B6/8/4k3/KR1n4/8/6P1/1P6/4r3 b - - 9 49;622;1;3\n5kr1/1p1r1p2/p4P2/3b1p2/6p1/P5QP/1P6/6K1 w - - 0 35;646;2;26\n8/2R5/4pp1k/6p1/3rPnPp/2R4P/5P2/5K2 b - - 0 41;414;1;26\n1k1rr3/pB3pp1/2p1p1bp/2N5/3P3P/PR3Pq1/1PP5/1K1R4 w - - 0 30;1690;1;27\n8/pp2kN2/q2p1n1R/3P2Q1/4PpP1/1K1RnP2/1P6/8 b - - 10 40;2138;2;27\n5rkr/ppR1Q1p1/8/6Nn/6Kp/4R3/q5PP/8 w - - 2 30;1997;2;22\nr2qkb1r/ppp1npp1/7p/2n1PQ2/3p1B2/1B3P2/PPP2P1P/RN3RK1 w kq - 3 12;1775;1;25\n8/8/7r/1K1k1p2/PP1PbR1P/8/8/5R2 b - - 2 39;1993;2;8\n2r4r/4qp2/3pP1pk/p2P2R1/3Q3P/1p2N3/1PP5/2K2b2 w - - 0 30;2039;2;12\n8/8/7p/6p1/1p2N1Pk/1P5P/6K1/4b3 w - - 0 57;1914;2;26\n4N3/7R/4pp2/b4k2/2n5/5KBP/5PP1/4r3 b - - 0 40;1758;1;13\nr1b2rk1/ppp3pp/2n2q2/8/2PpN3/3PP3/PP1Q2PP/R3K1NR b KQ - 0 14;589;1;27\n5rk1/pp5p/3p4/3b1N2/3B4/1P2P3/PK2B3/4q3 w - - 0 31;1676;1;26\n1rb2rk1/1p3pbp/p5p1/q2R4/4BN2/1Q2PP2/P5PP/4R1K1 b - - 4 21;541;1;23\n6r1/p1p1N2p/1p3p1k/8/2PKPN1P/r4P2/8/7R b - - 5 38;1979;2;26\nrnb1kb1r/2qp1pp1/pp2p3/7p/P2NP1n1/3BB3/1PPNQPPP/R4RK1 b kq - 3 10;547;1;23\nr1b2r1k/1pp3pp/p1np4/6q1/4p3/P1P1P3/BP2N1PP/R2Q1RK1 w - - 1 15;601;1;0\nr5k1/1b3ppp/p3p3/2Bq4/P2P4/8/2P3PP/R2Q1R1K b - - 0 19;439;1;27\n8/5r2/4Q3/p1k1P3/P1p4n/4N2P/4q1P1/6K1 w - - 2 41;1920;1;26\n6k1/1R5p/1B6/pP3p2/4p3/4KnP1/Pbr4P/5B2 b - - 4 33;1680;1;26\nr1b1k2r/pp3ppp/1q6/3pn3/P3n3/1B5P/1PP1N1PK/RNBQ3R b kq - 4 12;1910;2;10\nr4r2/5pkP/3pp3/1b6/pp2q3/3N4/PPPQ4/2K4R w - - 0 29;2088;2;27\n1k1r4/1bp5/6pp/p1b1p3/1n4q1/PQN3P1/2PPB1P1/R1B2R1K b - - 0 23;1800;1;27\nr2qkb1r/pp3ppp/2bp4/4p3/2B5/2n1BQ2/PPP2PPP/R4RK1 w kq - 0 11;643;1;27\n6rk/7p/8/2b5/2P1Bp2/5P2/4Q2P/6RK b - - 0 42;636;1;8\nr1b5/pp3B1k/1n2p3/3pN1P1/3q4/8/PP2Qr2/R3K3 w Q - 0 23;1952;2;27\n3rkbnr/pp1bpppp/8/2P5/1np5/P1N1P3/1P3PPP/R1BK1BNR b k - 0 10;1924;2;13\nr2r3k/1p2qpp1/2pR3p/p1PnPp2/P7/6RP/1P1Q1PP1/6K1 w - - 0 31;2169;2;22\nr7/1p3pBk/p1p1nPp1/4P3/2bq1P2/4R3/PP3K2/R7 w - - 0 34;616;2;8\n8/R6p/5N1k/2p1p1p1/4P1PP/p1PPK3/1q6/8 w - - 0 37;2151;2;26\n4k2r/p2n1ppp/Qq2p3/1N1p4/3P4/BP1KPN2/r4PPP/8 w k - 2 18;1936;2;27\n8/6k1/8/5RPK/6P1/r7/8/8 b - - 0 76;572;1;26\n1r4k1/5p2/p3b1pQ/P2N4/4P3/5P1P/B4PK1/q7 w - - 0 29;1848;1;26\n2r1k1r1/2qbbp2/3ppn1Q/pN6/3RP3/P3B3/1PP1BPPP/2K3R1 b - - 0 17;478;1;24\nr1b2rk1/p1q1ppBp/2p3p1/3P4/2B3n1/2N5/PPPQ1PPP/R4RK1 b - - 0 13;632;1;23\n4r1k1/1b3ppp/1p1rp3/p1p1P3/Q1P1pP1q/B3P3/PP4PP/2R3K1 w - - 0 22;427;1;23\n2k1r3/p2q1p2/1pp3p1/7p/2P5/Q3R2P/PP3PP1/5K2 b - - 0 29;621;2;26\n2kr4/R4Qp1/p1q1P1Bp/P3N3/1p4P1/2r4P/5P2/6K1 b - - 6 36;1971;2;27\n6r1/1pp2p1k/pq1p1n1p/5N2/2P1r3/1P5R/P4PPP/3R2K1 w - - 0 25;585;1;27\n2r5/4KN2/R3N3/6pk/7p/4PP2/1b4r1/8 w - - 0 44;2017;2;22\n5r2/p3kpQ1/4p1p1/2R5/q1nP4/2P5/P3RPPP/6K1 b - - 18 29;648;2;26\n6k1/2R5/6K1/5r2/7R/8/5r2/8 w - - 2 49;1982;2;26\n2k1r2r/Rpp2p2/1n2qn2/3p4/1P1P2N1/2P4p/2B2P1B/1N1QR1K1 b - - 1 24;2073;2;23\n3k2rr/5p2/pN1bp3/3p1p2/3P4/qPQ4p/2P1RPP1/3R2K1 w - - 2 28;2011;2;27\nr2qk2r/pp1n1p1p/3bpn2/3pNp1Q/2pP1P2/2P1P3/PP1N2PP/R1B2RK1 w kq - 3 13;574;1;27\n8/P6p/2k1p3/3bQ3/1P1Pp3/K1B1P3/4q3/8 b - - 16 48;591;1;26\n3k4/R4p2/Q1bp3q/2p1pP2/2P1P1r1/1P6/6B1/5K2 w - - 2 36;2010;2;26\n2r2k2/p2p1p1Q/bp1q4/3P1p2/7P/P5NK/5PP1/8 w - - 0 31;1915;2;26\nrnb2knr/4q2p/2p1p3/p4pQB/1p1Bp3/2N1K3/P1P2PPP/3R4 w - - 4 26;1962;2;22\n8/p5Q1/2p2K2/1p1p3k/3P4/2P1q1P1/8/8 w - - 2 42;1860;1;26\n1k1r1b2/pp6/8/1QP1p3/1P1pNp2/3PPB2/q3P3/3K3R b - - 0 39;2032;2;27\nr2qk1r1/3nb1Bb/2p1p2p/ppPp4/8/1P4P1/P2N1PBP/R2Q1RK1 w q - 1 17;587;2;25\n7k/p1r3pp/8/8/1bB1P3/3K4/PBn2rPP/2R4R b - - 4 24;1658;1;8\n8/3PQpkp/6p1/2n5/1p5P/p4P2/qPP3P1/2KR4 b - - 1 31;2143;2;22\n5k2/r4p1p/4p1nP/4P1p1/BR4P1/8/5PK1/8 w - - 4 42;612;2;8\nr5k1/pp1Q2pp/2p5/3p4/1P2qB2/PN1p2P1/2P2P1b/R4K2 b - - 0 24;1657;1;27\nrnb2rk1/ppp3pp/3bpq2/8/2BP4/2N5/PPP2PPP/R2QK1NR b KQ - 1 8;568;1;25\nr4kr1/pp1b1B2/2n1pQ2/3pP1N1/3P2nP/2P5/5PP1/qN2K2R w K - 1 19;1683;1;27\n3k4/1pp3Qp/p1n2p2/3n4/5q2/1N6/PP3PPP/1K6 w - - 0 24;1915;2;26\nr1b2k1r/ppp2p2/3p1qnp/2bPp2N/2P1P3/2N4P/PP3PP1/R2QKB1R b KQ - 1 13;557;1;25\n2R5/8/2p1p3/2Q5/4qk1K/8/8/8 b - - 0 47;1824;1;26\nr7/r7/R1R2p2/4k3/3p4/5K2/6P1/8 w - - 0 39;1686;1;26\nr4rk1/ppp2pp1/2nqp3/3p2Nn/3P4/2PQP1P1/PP1N1PP1/R3K3 w Q - 0 13;504;1;27\n5k2/1b3p1p/4pp2/1N6/2B3P1/1P1Q3P/5P1K/4q3 b - - 0 34;1931;1;26\n8/4ppk1/3p2P1/3P1KPp/4P2r/8/8/4R3 b - - 1 49;2142;2;26\nr5rk/p1q2p1p/3bpp2/2p4Q/3P4/P1NBP1P1/2P2P1P/R3K2b w Q - 0 18;509;1;23\n3r1k2/p3npp1/q7/8/5PP1/1P6/1P6/1K1R3R w - - 0 35;638;1;0\n5r1k/2p1Q1p1/1p4P1/p6r/P7/8/5KP1/8 w - - 9 56;528;1;26\nr3r1k1/p1p1qpp1/2p4p/2bp4/3Q1P2/2P1P1R1/P1P3PP/R1B3K1 w - - 0 17;648;1;23\n1k6/ppR3pp/5p2/q4N2/3P4/1Q3B2/PP3PPP/6K1 b - - 0 28;584;1;26\n4r1k1/pp1rbp2/7Q/3pR3/6n1/2P2N2/qP3PPP/4R1K1 w - - 1 22;1919;2;23\n6k1/1P3pp1/2BR2nq/4p3/2b1P3/2r2PP1/5KQ1/4N3 b - - 0 39;1669;1;27\n1k4r1/p1p2p2/1p1b1p1p/2P1q3/1P2P3/PN5P/4Q1P1/3R3K b - - 0 25;631;1;26\n7Q/pp2nk2/4Nrp1/4q3/4p1P1/8/PP6/K2R4 w - - 3 29;1935;1;26\n2r5/pp6/5R2/6B1/2N1bPk1/1P4P1/2r4P/6K1 w - - 5 41;2011;2;8\nr4rk1/1p3ppp/p3p3/3p4/3N4/P2Q3R/1PP2qPP/7K w - - 0 21;645;1;23\nk7/pp4pp/5p2/4p3/7q/2QK1R2/1PR3PP/4r3 b - - 9 33;1913;2;26\nr1b2k2/pp6/2pN1b2/2P1np1p/2N1p2P/1PQ1Ppr1/PB3K2/3R1R2 b - - 1 27;2092;2;10\n8/8/4p3/1pQ2qp1/2p2k1p/P1P4P/6P1/7K w - - 8 47;2086;2;6\n8/2k2B2/1p6/1K1p1b2/PP1P4/8/8/8 b - - 2 45;1718;1;26\nq4r2/1b3pkp/p3pNp1/1p6/3Q4/1P1r4/P4PPP/5RK1 w - - 0 26;1990;2;18\n4r2k/p1p2Qpp/1p6/2b3q1/8/2N5/PP4PP/5b1K w - - 0 22;525;2;26\n4rr2/2p5/pp1p3R/6p1/2b1k3/2P2N2/P4KP1/3R4 w - - 0 36;1931;2;26\n4r3/Q5pp/1ppk4/2b5/5N2/3P4/PP1K3P/n7 b - - 0 32;2049;2;9\n8/1p2Npk1/pR6/2P3pp/P1P1P3/3n1rPK/7P/8 b - - 4 33;1664;1;26\nQ7/p4p1p/4k3/2P1r1p1/8/5pqP/PB3bP1/1R3R1K b - - 1 32;1676;1;27\n8/8/2Q5/4P1bk/3P2p1/2P1Bp2/2q3PP/7K b - - 0 48;1804;1;26\n8/p7/5n2/2R3p1/PP1kp3/r3N1P1/4K3/8 w - - 12 50;1719;1;26\n6Q1/1kp1R3/1p6/3p4/3P2p1/1nPK2b1/r5P1/8 b - - 6 44;2056;2;9\n8/4kpp1/BP6/2p1pPq1/4P3/3P4/1P2K2b/3Q4 b - - 2 41;1902;2;26\nr2q4/ppn1k3/3p2PQ/3np3/NP3p2/P7/7P/5RK1 w - - 1 32;1949;2;6\nQ7/5Rpk/4p3/3pP2p/3P2nP/5KP1/2r1r3/R3B3 b - - 0 37;2012;2;7\n8/4Bp1k/6p1/7p/3q2n1/6N1/Q5PP/1B3K2 b - - 3 34;1722;1;26\n2r1r2Q/1b1qk1p1/p1nbpp2/1p6/3PN2B/P7/1P3PPP/2R1K2R w K - 0 22;2049;2;27\n1r1k1r2/p6Q/5p2/2Kp4/2pP2P1/5N2/q2N1P2/4R2R b - - 2 28;1913;2;27\n1r6/4kp1P/4p1p1/1pK1P1P1/r1pP1P1R/8/2P5/7R b - - 4 40;1996;2;10\nr3k2r/pp3ppp/1qp2n2/4pN2/4P3/4bP1P/PPP3P1/R2Q1R1K w kq - 0 19;1933;2;27\n3R4/1r3k1p/4NrpP/p7/1qp5/5b2/PPR1Q3/1K6 w - - 2 35;1818;1;27\n6k1/5ppp/1R3b2/2Bb4/1P6/6PK/5P1P/1r6 w - - 5 29;399;2;0\nR7/1bkr2pp/1ppN1p2/2P5/1P6/2K4P/6P1/8 w - - 4 34;1816;1;26\n7k/R5pp/1p4p1/3r4/2p5/2P5/P5PP/6K1 w - - 0 29;463;2;0\n1k2r3/p6q/Q7/2P5/2NP2p1/5nPp/P6P/1R5K b - - 4 38;1752;1;26\n3r2k1/p1pb1ppp/8/1p1P4/2P1n3/1P1p3P/P3rPP1/RNBKR3 b - - 1 18;1810;1;27\nr5k1/1p4b1/2p3rp/4p3/1PPpPp2/3B1K2/5R1q/1RN1Q3 b - - 7 30;2120;1;27\nr1b3k1/pp4pp/1qn1pb2/3p3Q/8/3B4/PP3PPP/R3R1K1 w - - 2 18;1751;1;27\nr2qr3/ppp4p/1bn1Nn1k/3p1bpP/3P4/1B6/PP2QPP1/RNB1K2R w KQ g6 0 15;1776;1;27\n1r3rk1/p4ppp/bNp5/6P1/1b1PpB2/1Pn5/P1PQ1P1P/2KR3R b - - 0 17;1939;1;27\n8/6N1/5p2/3np1p1/1p3kP1/2r2P2/PR2K3/8 w - - 0 48;1803;1;26\nN5k1/3r1ppp/p7/8/4n3/1P4Pb/PB5P/2R1b2K w - - 0 26;542;2;27\nr1b3k1/1p4pp/2pq4/p7/8/P2P3P/1P2Q1PN/5RK1 w - - 2 24;537;2;26\n8/5Q2/p3P3/6p1/8/5P1P/4qkPK/8 b - - 0 42;2540;2;10\n8/8/R7/2kr1b2/3N4/2K5/8/8 w - - 26 64;1878;1;26\n5b2/1p6/3p2kp/3Pp3/1Pr5/3KB2P/2r2P2/1RR5 b - - 4 35;1749;1;26\nrn4k1/ppp3pp/8/3PN3/3PK3/6q1/PBP2r2/R2QR3 b - - 0 21;1755;1;27\n2k3rr/ppp2p2/5B2/8/1PP1bN2/P4P2/3P3p/3QR1RK b - - 0 26;1656;1;18\n4rr1b/7k/3q3p/pP1P3N/4R1b1/3B3P/1P3P2/4K1R1 w - - 0 30;2452;2;18\n7Q/p3R3/1p1r1np1/6k1/2P5/1P5P/q5P1/3r1RK1 w - - 10 43;1770;1;27\n3r2k1/2n3pp/2p1p3/6NP/2P1PP2/pq2B3/1p6/1K1R3R w - - 0 32;570;2;27\n5k2/1p3p2/4p2P/r3r1Q1/5p2/8/6PK/8 w - - 0 37;1715;1;26\nr6r/pp1N2pp/4p3/8/3n1k2/q2B3Q/P5PP/b5K1 w - - 0 25;1671;1;27\n8/5R2/1b2pNpk/3pP2p/8/5KPP/2r2P2/8 w - - 1 44;2195;2;26\n7k/R5pp/2p5/3p2PK/3P2P1/8/5r2/8 w - - 1 42;508;2;0\n8/5Qp1/7p/8/4k3/2K2pPP/5q2/8 w - - 4 54;1779;1;26\nr5k1/1p3p1p/3p2p1/3P1b2/5q2/p3R3/7P/Q3R2K w - - 0 35;593;2;26\n2b1R3/1p6/p7/2p5/2Pkpp1q/1P4R1/P4PB1/6K1 w - - 0 47;1692;1;8\nr6r/1p1Rbp1p/p3p1n1/2p2nk1/8/2N3B1/PP2BP2/2K4R w - - 2 22;1816;1;27\n8/8/8/1B3R2/P2kp1PP/3p1P2/r7/3K4 b - - 0 43;2179;2;26\n2kr3N/p5pp/1pP5/4p3/QKBn1q2/2P5/PP1Pb1PP/RNB4R b - - 1 17;2132;1;27\n3RQ3/5pkp/p4qp1/2p5/PbB1p3/1P2P3/5rPP/6K1 w - - 0 37;1658;1;26\n5bkr/6p1/3p2Q1/4p3/7P/3B4/PP6/1KN4q w - - 1 34;1811;1;26\n8/8/1p4pQ/1b1p1p2/1P1q1Pk1/P7/6PP/7K w - - 2 47;1664;1;26\n4r1k1/pp4pp/5p2/2Nn3b/Q7/P1PB1P2/1P4PP/4R2K b - - 0 24;581;2;0\nrn5k/p5r1/1p2RNpb/7p/8/P2B3P/1q4P1/3R3K w - - 4 34;632;2;2\nrn1qkb1r/pp3pp1/7p/1bpP4/4N3/5N2/PP2QPPP/R3K2R w KQkq - 0 13;1835;1;18\nr1b3k1/5rp1/2p4p/p2p4/6q1/2PBQ3/P1P3PP/5RK1 w - - 0 20;610;2;27\n5b2/3n2p1/2p1k3/3pP1B1/4P3/1p3Q2/1P1KN1P1/r6q w - - 0 30;1703;1;27\n8/3R4/1p6/1Pk4p/2Pn2p1/KP4P1/4rP1P/8 w - - 8 47;1660;1;26\n8/8/8/kpp5/p7/K1P5/PP5N/8 b - - 0 46;554;2;26\nr1bbrk2/1pq3p1/p7/P2B3n/5Bn1/1NP3P1/1P3R1P/5RK1 w - - 0 24;1665;1;9\n2k5/B5pp/3b1p2/p2R4/P7/4P2P/1r3PP1/6K1 b - - 0 27;648;2;9\nr4k2/p3np2/5N2/1qn1p1p1/1P6/5P2/P1pK3Q/R7 w - - 0 29;2172;1;27\n3r1rk1/pp2n1p1/5p1p/7P/2P2PR1/6Q1/P2qPPB1/R4K2 b - - 3 28;641;2;0\n2k3rr/1pp5/p3P3/4q3/4P3/N2Q3P/PP2BP2/3R1R1K b - - 2 27;2166;2;22\nr1b3k1/ppp3b1/3P3p/1P1Pp1q1/P3P1B1/B1N1N2K/5r1P/R2QR3 b - - 0 23;2182;2;12\n2k5/pp4r1/7B/2p5/PP1p3p/2P2Nbq/4Q3/R4RK1 b - - 3 29;2177;2;18\n5rk1/2Q3bp/1np3p1/4p3/4Nq2/1P1P4/PBP3PP/1R5K b - - 0 22;609;2;0\n8/p4R2/6p1/1p3pN1/5k1P/6r1/r7/4R2K w - - 4 43;1703;1;7\nr3k2r/ppp2p2/3p4/Q1b1p1B1/2B1P3/3P1n1b/PPP2PnP/R4K1R b kq - 5 15;1917;1;19\nr4kbQ/pp2R1p1/5pBp/2q5/8/8/P4PPP/3rR1K1 w - - 8 27;1697;1;12\n4r1k1/p5pp/2p1q1b1/3n4/3pp3/BP1P1Q1P/P1P3P1/5RK1 w - - 0 25;515;2;8\n6k1/p4pp1/1p5p/4R3/2rp4/7B/5PPP/6K1 b - - 0 32;630;2;0\nr5k1/1b3ppp/p4b2/qp1PQ3/8/PB6/2P2PPP/4R1K1 w - - 1 26;580;2;0\n2k2r2/p1p5/3q2p1/1Q4R1/4KP2/P2rP3/7P/4R3 b - - 2 30;2254;2;22\n2r3k1/3r2pp/1p1Bp3/pP2p3/n6P/5R2/6P1/5R1K w - - 0 33;572;2;8\n8/6pp/p1B3k1/1p2p2r/2p3nP/P3B1P1/1r6/5R1K w - - 1 40;1681;1;26\nrn1q1r2/pp1kbQ1b/2p2npp/8/2BP1B1P/6N1/PPP2PP1/R3K2R w KQ - 3 16;1759;1;27\n3N4/8/4Rp2/p4kp1/P1P5/1PB2nPK/8/6r1 b - - 0 37;1699;1;26\n5k2/p1R5/2p1P2p/2b5/2B5/1P2n1Bp/P5bK/8 b - - 0 28;2002;1;26\n7k/p4RrP/1p2p3/3r3q/3p2p1/3B2P1/PPP3K1/8 w - - 0 38;565;2;20\n6B1/3n2N1/2pk1P2/1p2p1n1/1P2P2p/2P1K3/8/8 w - - 1 43;1731;1;26\nR7/P4p2/2p3k1/6pp/2P5/1P3N1P/5nPK/r7 b - - 0 28;2192;2;26\n3r2kr/1p1q1ppp/p3p3/2BnPN2/8/P7/4QPPP/b2R2K1 w - - 4 22;2219;2;22\n3r1rk1/p1b2pp1/N6p/5b2/1PR5/5B1P/P3RPP1/6K1 b - - 2 29;603;2;9\n8/8/8/8/P1r5/5k2/6pK/R7 b - - 0 64;642;2;26\n2r3k1/6pp/8/3R4/3P4/3rB3/2p2PPP/2R3K1 b - - 1 35;587;2;0\n3r2k1/1p3ppp/2n3b1/8/p5Q1/6PP/Pq1rR1B1/2N1R1K1 w - - 1 26;605;2;0\nr4r2/2p3pk/1p1pBb2/1b3P2/1P3B2/5R2/P5P1/6K1 w - - 0 37;631;2;9\nr4b1r/pp2kpp1/4p1p1/qBn1P3/3Q4/2n3B1/PP3PPP/R3K2R w KQ - 0 15;2020;1;27\n2b1k3/4qp1p/p1p1pB1Q/8/4p3/bBN5/PrP2r1P/2KR2R1 b - - 0 19;1997;1;11\n7k/1q3ppp/p1b5/n3P3/1n1Q4/1P4RP/P1r3BK/8 w - - 0 35;614;2;27\n6k1/pp4pp/4p3/8/1P1qn1r1/P4P1Q/7P/R4R1K b - - 0 28;2484;2;13\n6k1/pp2qppp/8/1PP5/P1bR4/5Q2/2R3PP/6K1 b - - 0 28;518;2;26\n3r1rk1/ppN3pp/4b3/4Pn1Q/8/6P1/PP2Kb1P/R1B2B1R b - - 2 17;2179;2;11\nr4k2/pbn1p1bQ/1p2p1PB/2pP4/4q3/8/PPPKN3/R7 w - - 0 26;1938;1;27\nr5k1/pp3p1p/2p2r1P/4R1p1/2b2nP1/2P5/5N2/4R1K1 w - - 0 32;423;2;27\n5rk1/pb3ppp/1p2pn2/8/3N3Q/r3P3/1R3PPP/R5K1 b - - 0 22;561;2;27\n4r1k1/1QP3pp/8/p7/2q5/4B3/5PPP/2R3K1 b - - 2 23;569;2;0\n3r4/p3Q1pk/6pp/4n3/7R/2Pq4/PP4P1/K6R b - - 4 27;530;2;0\n2q2rk1/1Q3pbp/4p1p1/4P3/3P4/1R3N2/5PPP/2R3K1 b - - 0 28;496;2;27\n1r4k1/5ppb/p6p/1p1QP2P/q4bP1/P1P2B2/1K6/3R4 w - - 3 34;604;2;0\n5rk1/1p1Qn1p1/p4q1p/3pb2P/4P3/2P5/PPB3P1/3R1R1K b - - 0 29;2206;2;9\n8/pp3p2/2np4/3N4/3Pk3/1PP3r1/P2K1R2/8 w - - 3 32;1902;1;26\n8/1R6/7k/6p1/3bp1P1/2Bn4/2R1K3/7r b - - 4 48;2173;2;26\n8/2Q5/1p2pk2/1P3q2/3P3r/8/1P3PK1/1N3R2 b - - 1 31;2198;2;26\nr1bqr1k1/p1p2pp1/1p3B1p/3Nb3/8/P7/1P3PPP/R2QKBNR b KQ - 0 13;1918;1;9\nr1b3k1/ppp2ppp/8/b7/3n2P1/1B1P2r1/PP6/R2K1Q2 w - - 0 25;507;2;0\n8/3p1k2/2bQ4/5p2/4qP2/6P1/PP1R3P/6K1 b - - 3 42;1951;1;26\n8/1R6/5K2/7k/8/p5P1/rp6/8 w - - 2 62;2304;2;26\n2krr3/ppp2p2/6p1/4Pn1p/4KP1b/2N1BP2/PPP4P/3R2R1 b - - 3 18;2351;2;22\n6k1/1p3r1p/1pp2p1B/r6q/7P/8/PP4NK/4RR2 w - - 8 33;641;2;8\n1k4r1/ppp4p/2q2p2/8/8/2b1B3/P1P1KPR1/8 w - - 0 22;486;2;26\nrn2r1k1/p5pp/1p6/3p4/2pP2Q1/B7/P4RPP/4R2K b - - 0 24;534;2;0\n8/1pkn3Q/2pb4/p3q3/8/8/PPB2RPP/7K b - - 0 30;631;2;26\n3r2k1/5ppp/5b2/5p2/2qPQ3/2P3P1/1r1B1R1P/4R1K1 w - - 0 34;615;2;0\nrn5r/1q1kn1p1/pB4Qp/3pPp2/bb1N4/3B4/P1P1KPPP/R6R w - - 7 21;2430;2;22\nr2q2kr/1p2b1pp/p1np1n2/3b4/2B1P3/8/PP4PP/R1BQ1RK1 w - - 0 16;2252;2;22\n8/5p1k/p2R2p1/2PbQ2p/3K3P/P4PP1/8/2q5 b - - 6 49;1926;1;26\n1k1r4/ppp2pp1/2b4p/8/4Pb2/5PP1/PPP1NQ1P/1K1R4 b - - 0 19;567;2;8\nr1b3k1/pp3pbp/8/Q7/2P1n3/B3Pq2/PP4pP/R3R1K1 w - - 0 23;634;2;23\nr3Q3/ppp3pk/2n4p/4N3/1PB2b2/P2P2Pb/2q5/6K1 w - - 2 23;2285;2;27\n3r2k1/1b3ppp/pQ6/3p1P2/3P2n1/2N3q1/PP2r1B1/R5K1 w - - 0 27;623;2;23\nr3r1k1/2B1q1p1/p1p2p1p/7n/8/2P4P/P4PPQ/3RR1K1 b - - 0 21;523;2;0\n5rk1/1b2q2p/p3p1B1/1p1nP3/2r3Q1/Pp4RP/1P3PPK/8 w - - 2 30;2206;2;18\n7r/ppQn2p1/4knq1/4p3/1B1pP2p/8/PPP3PP/5RK1 w - - 4 22;2418;2;27\n1R3rk1/p4p1p/3Q2p1/2pP1q2/2Pb4/5PPb/P2P2BP/4RK2 b - - 0 24;1987;1;27\n6k1/R1pr1pp1/6p1/6N1/8/6KP/PPr2PP1/8 w - - 0 34;524;2;26\nr1b1k2N/ppp3pp/8/2bBn3/5P2/3p2q1/PPP5/RNB1QK1R b q - 1 16;2176;2;22\n4r1k1/q5pp/4b3/pp1p4/1BpP4/P3PR1P/1PB1K1P1/5R2 w - - 0 32;585;2;8\n2r2r1k/1p3pq1/pP3N2/8/P7/2p5/5QPP/5R1K w - - 2 38;613;2;26\nr3r1k1/q4p1p/2p5/5PBp/1ppPP3/2P5/p6P/R5RK w - - 0 37;2158;2;23\nr2q2kr/pp1nb1pp/5n2/3p2Q1/2B5/4P3/PB1P2PP/R4RK1 w - - 0 18;2336;2;22\n2r2rk1/pp3ppp/3p4/2p1P1q1/P3P1nP/1PP5/1B3PBP/2R1QRK1 b - - 0 18;2186;2;23\n2r3k1/p4ppb/5q1p/2p1Q3/6P1/1P4BP/P3R2K/8 w - - 0 37;581;2;0\n6k1/1p3ppp/4p3/8/1r1p4/2qP1PPK/7P/Q7 w - - 0 36;622;2;0\n3k3r/bpp1n3/p1n1BR2/8/5R2/2P5/Pr4PP/7K w - - 2 31;457;2;9\n2k5/2p5/p2n4/2p1Bb1K/2P5/1P4r1/P7/3RR3 b - - 4 43;2328;2;26\nr3nrk1/1R2R1pp/5p2/q1NPbP2/3P4/p7/P1Q3Bp/B6K b - - 0 35;589;2;27\nrn1q3r/1bp1n1kB/p3p1p1/1p2P3/3P3Q/2P5/P2B1PPP/R3R1K1 w - - 0 18;2181;2;22\n4r1r1/5kpp/2p1Rn2/1p5P/p2P1q2/1B2R3/PPP2P2/2K5 w - - 0 27;2161;2;8\n7k/pp2Q2p/1q6/5r2/5B2/7P/P5PK/8 w - - 0 29;2304;2;22\n2r1r1k1/2p2ppp/1pP2q2/p1n1R3/2P2P2/6PP/P1Q3BK/4R3 w - - 1 30;612;2;23\n1kr5/p1p2ppp/2Q5/8/4P1q1/2P1R1Bb/PP3P1P/6K1 b - - 2 27;639;2;26\nr2r2k1/5ppp/1p1q4/4B2b/2B1p3/P1Q1P2P/1PP2PP1/2K4R b - - 0 20;624;2;8\n5rk1/6p1/4pp1p/2R2b2/2P1p3/r3P2P/2Q2PPB/R5K1 b - - 0 25;608;2;0\n2r3k1/1p2Rppp/p2p4/n2P4/6n1/6QP/PP3PP1/2B3K1 b - - 0 23;518;2;23\n6k1/6p1/2n1b2p/2P1p3/2PpPr2/P7/1R1Q1rPP/3R1B1K b - - 0 27;611;2;0\n6rk/BPp4p/3p1r2/P7/2N1Qb1q/5pPP/2R2P1K/6R1 b - - 0 44;2178;2;22\n4q2r/2nbpp1Q/p2p1k2/2pP2N1/2P1PP1P/P5P1/8/6K1 w - - 1 30;2222;2;26\n4r3/R7/4kpN1/3p1N1P/3P2P1/2p2K2/1r5q/8 w - - 5 39;2200;2;7\n8/1R6/3p4/p2P4/P1P5/KP6/2k3r1/8 b - - 0 57;2223;2;26\n2Q5/1K3ppp/3kp3/8/1P3P2/7P/1b4P1/q7 w - - 0 50;2016;1;26\n6k1/2b2pp1/R1pq3p/1p6/3B1n2/1P1P1P1P/1PP2P2/4Q1K1 b - - 0 25;2203;2;26\n5b1r/p1Qnkpp1/1p6/4p3/4q3/5pPp/PPP2P1P/1K1R4 w - - 0 23;2151;2;26\nr3r1k1/p4pp1/b1p4p/1pb5/3qN3/P2P2RQ/1PB2PPP/R1B3K1 b - - 4 19;2329;2;22\n2r3k1/1p4pp/p2p4/3P1B2/3n1Q1P/2q4R/2P2PP1/2KR4 b - - 0 27;2183;2;24\nr5k1/pp1nr2p/2pb4/5K2/2P2NP1/PbNB3P/1P1P4/R1B3R1 b - - 0 27;1993;1;8\nr3q1nr/pppbk1pp/3pNp2/2b1nP1Q/2B1P3/2N5/PPP3PP/R1B1K2R w KQ - 7 11;1910;1;25\nrnbk3r/ppqpNB2/7p/2p3Bn/3pP3/8/PPP2PPP/RN2K2R w KQ - 0 12;1907;1;18\n8/8/8/4p1k1/8/r3n1Kp/4RR2/8 b - - 0 56;1933;1;18\nr7/5pp1/pN1k1n2/3B3P/2K5/3nP3/Pq5P/2RQ3R b - - 0 27;2175;1;27\n2k4r/ppP2ppp/8/2b5/3nbB2/2n1K2P/PQP2PP1/R4B1R b - - 0 17;1973;1;19\n8/8/5kp1/5p2/1p3n1r/6K1/P4R2/2R5 b - - 6 46;2204;2;22\n8/5b1p/4r3/1k6/2nn4/2PK4/Q5PP/1N5R b - - 0 41;2153;2;9\nr6r/p1R3pp/4p3/P3Q3/3P4/1pPk4/1P4qP/R3K3 w Q - 6 25;2539;2;19\n2R2b1r/3kp1p1/pq1pN3/1p1n1P1p/4bBn1/2Q4P/PP4P1/5R1K w - - 4 21;2153;2;7\nr1b2r2/ppq2kp1/2pbp1N1/5pBQ/3P4/8/PPP2PP1/R4nK1 w - - 4 19;2152;2;19\n2Q2rk1/3q1pn1/6pR/1p6/p5b1/8/PP6/K3R3 w - - 0 35;2194;2;22\n2n5/1r4pp/5p2/p3k3/1B4P1/PB2KP1P/8/8 w - - 0 41;1901;1;26\n6r1/2Q5/3Rb3/4Pkp1/n7/5PBP/7K/1q6 w - - 0 53;2279;2;22\n2k3rr/7p/p1pp4/Q3pp2/3p2bP/8/PPP2P1P/R3R1K1 b - - 0 21;2220;2;11\n6k1/3r1p1p/3P2p1/4P3/N2Q1P2/6r1/1P2RK2/3R3q b - - 3 43;1973;1;27\n5r2/ppp1qN1p/1nn1k1pQ/8/2Pp4/P7/1P4PP/5RK1 w - - 0 26;2159;1;27\nr4r1k/6p1/p1p4p/P1N4q/3P2n1/4P1Q1/1PP3P1/R3BRK1 b - - 6 26;2157;2;22\n8/1p5p/p7/4k3/4pnB1/NP2K2P/P1r5/3R4 b - - 1 37;1939;1;26\n3r3k/4QRp1/p6p/1p6/4N1n1/3P2P1/PP2qPKP/8 b - - 6 31;2214;2;26\nQ3r2r/R2q4/1k1p4/2pP3p/1P1P1ppP/2P1b3/1P4PN/7K w - - 4 29;2431;2;22\n5rk1/p3pp2/6B1/7R/2p2P2/4b1Q1/Pr2K1PP/q7 w - - 2 25;2141;1;19\n3r1rk1/pb3pp1/1p3b2/3q1N1Q/5n2/2P3RP/PP3PP1/R5K1 w - - 1 22;2154;2;22\n1br1k2r/ppq2ppp/2n1p3/2Pp4/3Pb1P1/1P1BBN1P/P4PK1/2RQ1R2 b k - 2 17;1985;1;27\nr2r2k1/4bpp1/p4q1p/1p5P/4b1Q1/1NP3B1/PP3PP1/2KRR3 b - - 3 22;2159;2;22\n5Q2/3k4/p7/1p1K4/1P2PP2/P2B3b/1q6/8 b - - 0 53;2380;2;26\n8/1k1P4/1p1KQ3/4P3/8/5q2/8/8 b - - 10 65;2206;2;26\n2R5/pq3pkp/4p1p1/3b4/1r6/6N1/3Q1PPP/6K1 w - - 4 30;2170;2;10\n8/8/3p2k1/3Q1p2/2P1n3/5R1P/1B2r2b/4qB1K b - - 7 46;2249;2;22\n7k/6p1/1p6/p2p4/8/K1N1r1q1/PPB5/R2Q4 b - - 1 31;2273;2;26\n1k6/5R1p/2p1p1p1/K1P3P1/P2r1P2/r6P/8/5R2 b - - 0 37;2188;2;26\nr3k1nQ/p6p/2p2B2/8/1bb5/2N1PN2/Pq3PPP/3RK2R b Kq - 0 18;1963;1;27\n8/2p3p1/5k1p/1p1Pp2K/P2pP1P1/1B1P3P/8/2b5 b - - 0 35;2219;2;26\n1rb4r/4kqp1/p6p/1p6/3Q1p2/8/PP4PP/3R2K1 w - - 0 24;2238;2;26\n8/8/5nk1/1Q6/5q2/5P2/4PK2/5B2 b - - 0 44;2156;2;26\n8/3r2p1/8/8/1n3k2/3p1N1P/5KP1/4R3 w - - 4 42;2209;2;26\n4RN2/2R5/1r3kpp/2p3q1/2P5/2r3PP/7K/8 w - - 1 40;2316;2;26\n3r4/1r4p1/2n4p/1p5R/1kpn4/R1N2P2/1P3KPP/5B2 w - - 6 33;1917;1;27\n8/2pQ1pp1/2B2k1p/4bq1P/8/6P1/5PK1/q7 w - - 4 42;2206;2;26\n3k4/1p5q/2p3p1/1bP5/1P1bPQ2/7B/3p3K/8 w - - 1 55;2314;2;26\n5k2/2p2p1p/1bp3p1/1p2Q1Bn/1P1P4/2q5/5PPP/6K1 w - - 3 29;2072;1;26\n6k1/R7/5PN1/7p/1b2K3/8/p4r2/8 w - - 1 53;1936;1;26\n5R2/p3Q1p1/1p6/3p4/1PpP4/2P2Pk1/q5r1/3K4 w - - 6 44;2218;2;26\n3r3r/1R3pp1/3bp2p/2k1B3/q7/3R2P1/PP4BP/7K w - - 1 25;2309;2;27\n8/3Q2p1/pk5p/2pBp1p1/1pP4b/3P3K/P2q4/8 w - - 12 43;2267;2;26\nr2k3r/ppb3Np/4QP1P/2p1n3/P1Ppq2n/7B/1PP4K/R1B2R2 b - - 1 26;2150;2;18\n2r2bn1/7R/p1kpb3/PppN2n1/B1P1PPP1/8/1P3N2/2K5 w - b6 0 36;1966;1;19\n2r1rkn1/2q2pR1/4bn1Q/3p4/3P4/2p2P2/1P5P/1B4RK w - - 2 28;2294;2;18\n8/7p/3K1Pn1/pp4Bk/4B2P/8/r7/8 w - - 1 52;1978;1;26\n3B4/4R1p1/1P3pkp/2Np4/8/1P2pn1P/1r6/5K2 b - - 1 57;1906;1;15\n7k/3q4/6Kp/7Q/8/5P2/8/8 b - - 11 44;1939;1;26\n8/1kB2B1p/1p6/pK6/P3bP2/2P1n1P1/1P5P/7R b - - 0 28;1911;1;26\n8/4R2p/3P4/p1p1K1k1/2B5/1PP2q1P/8/8 b - - 4 51;1930;1;26\nr6k/2p3p1/ppP4p/8/P2QP3/3Pn1Pq/R6P/5RK1 b - - 0 29;1977;1;26\n8/pBP3q1/1pR1b3/3k1p2/3P2p1/P2KP1P1/r7/8 w - - 0 31;2397;1;11\n3r1bnr/ppk3pp/2n5/8/5NB1/4P1BP/PP3P2/R3K2b w Q - 2 17;1925;1;18\nr3k1nr/p4ppp/b1p1p3/1q1pP3/1b1P4/PP2B3/2QN1PPP/R3K1NR b KQkq - 0 13;1943;1;25\n4r2k/3R2R1/1p3p1p/p1b3pN/2P3K1/1P2P1PP/5r2/8 b - - 3 38;1910;1;26\n7r/r4ppp/p4n2/8/1P3kP1/7P/1B3nK1/4R3 w - - 2 40;1949;1;11\n2Q5/8/8/1b6/1N6/4K1k1/8/5q2 b - - 0 67;1994;1;26\nr2qk2r/pppn1ppp/3b4/3Qn3/2B2B2/2N2b2/PPP2PPP/R3R1K1 w kq - 0 12;1916;1;27\nr5kr/pp3Rpb/2p1B2p/4P2P/6q1/4b1N1/PPP3P1/R6K w - - 0 20;1968;1;11\n8/7p/5Qpk/p7/P3BP2/4n1PK/4q2P/8 b - - 0 49;1923;1;26\nQbk4r/Bp3pp1/5nb1/4p2r/2B5/1PN5/5P2/5RK1 b - - 3 31;1997;1;27\n8/pb2p2R/1p1pk3/6P1/1nPK4/1PN2rN1/P7/5B2 b - - 7 34;1935;1;13\nrq2r3/2p1kppp/p1Q2n2/1p2p3/8/1B5P/PP3PP1/3RR1K1 w - - 6 19;1912;1;27\nr2q4/pp3k1B/1bp2pnB/3p3P/3P2b1/2P2N2/P4PP1/4R1K1 w - - 0 22;1975;1;27\nr6k/pp3rpp/4Q3/8/3B4/2P2qP1/PP3n1P/R4RK1 b - - 1 25;1926;1;27\n3rk1nr/p4p1p/2p3p1/8/5Bb1/1Bq1PP2/P3KP1P/R3Q2R b k - 3 15;1902;1;27\n8/7R/6p1/R4p2/PpP2k1P/1P1K4/6r1/7r b - - 0 51;1909;1;26\n8/7R/1k4p1/3pP3/pp1n1KP1/2r5/P1B5/2R5 b - - 2 49;2160;1;26\nr6r/ppp3pp/1bn2n2/1b2N3/1PPk4/8/P2N1PPP/R1B1K2R w KQ - 0 15;1900;1;27\n2k3r1/1p3P1p/p2q4/2p5/3ppQr1/1P6/PBP4K/R4R2 b - - 0 33;1904;1;27\n8/p2q1p2/3r4/R5Q1/1pp1k2P/6P1/1P1p1P1K/8 w - - 0 38;1910;1;26\n5r1k/pp4pp/3p2P1/4p3/2PpP1Q1/1P1Pb2P/P4r2/3R2KR b - - 4 36;1941;1;11\n8/3Q4/7p/2B1k1p1/1p2nq2/7P/6P1/7K w - - 9 44;1988;1;26\n6r1/1b5Q/3pk3/2q1ppP1/1p1pPn2/1P1P3P/2P3BK/8 w - - 0 36;1989;1;26\n3r4/6R1/p3p2p/1p1bpk1P/5P2/P3K3/1P2B3/8 w - - 0 32;1924;1;9\n8/4R2p/2pN1kp1/2P2p2/5P2/2r5/br4PP/1n1KR3 w - - 4 33;2000;1;27\nr6r/5p2/p2N1Rp1/4k1B1/1q2n1p1/1Pp4P/P1P3P1/1K1R4 w - - 0 30;1982;1;27\nR2r2k1/2N3pp/8/n7/1b6/4PN2/P1b1KPPP/5B1R b - - 4 18;1939;1;11\nr4bk1/2Q5/p2p1n2/1p1Pp3/4Pp2/N2B1Ppb/PPR2qP1/5N1K b - - 9 32;1909;1;23\n1R6/p3rkp1/3r1bNp/5p2/8/2n2N2/5PPP/4R1K1 w - - 5 37;1953;1;27\n8/3p4/2p1kP2/2P1P2b/4K2p/4P2N/6p1/8 w - - 0 54;2221;1;26\nrn2k2r/ppp2ppp/8/3QP3/1b2nPb1/1BN1B1P1/PP2N1qP/R3K1R1 b Qkq - 2 13;1968;1;27\n4rrk1/p1q2p2/2b4p/1p4pQ/3B4/1BP3nP/PP4PN/4R1K1 w - - 6 28;1914;1;27\nr1bqrbk1/pp4B1/2p2pQ1/4nN2/3P4/2P5/PP3PPP/R4RK1 w - - 9 19;1964;1;27\n2kr2nr/pppq1ppp/2n5/1B6/1b4P1/2N1PN2/PPP2PP1/R1BQK2R b KQ - 2 9;1941;1;25\n7r/kq2b3/p4p1p/2nQ1Pp1/4B3/4BP2/P6P/6K1 w - - 0 28;1930;1;27\nr4r1k/pbp1N1p1/3p3p/1pb5/4nP1R/1B6/PPP1N2P/R1BQ3K b - - 0 22;1952;1;18\n2R2nkr/1p4p1/p4pQ1/3N1P2/8/P2n3P/4q1P1/7K w - - 5 31;1932;1;27\n6k1/1p4p1/5n1p/p4QP1/3p1K1P/1P1N1P2/P7/6q1 b - - 2 43;2074;1;26\n8/2p1n2k/3p2pb/Q2Pp1qp/N3P1b1/1P6/4N3/2BKR3 b - - 5 34;1999;1;27\n8/8/1p1bp3/pP2B3/Pk3pq1/8/2Q2P2/5K2 w - - 4 50;2096;1;26\n2b1r1k1/7p/2p2ppB/3p4/1q1P4/3K4/B1PQ1PP1/3R2NR b - - 0 24;2051;1;27\nr6r/pb2kppp/1p2pn2/1Bp5/4q3/6Q1/PPP2PPP/R2R2K1 w - - 0 18;2161;1;27\n4R3/pp3ppp/2r1p1b1/P3k1P1/4p3/1B2B2q/1PP2P2/3R2K1 w - - 8 29;1911;1;8\n8/1p1Q3p/2pp2kP/3Pp1pq/2P5/PP6/1K6/8 w - - 4 46;2076;1;26\n5rr1/p3k3/8/2N1pn2/1PP4p/3PRK2/P2R2PP/8 b - - 0 28;2409;1;10\nr4r1k/1pp1p1b1/p6p/2PPp1p1/1P2N3/1Q2pB2/PB2P2q/R2R1K2 b - - 1 23;2178;1;27\n6k1/P6p/Q2pr1pb/5p2/7P/R1BK4/2P2P2/7q b - - 5 28;2183;1;26';
 
 var START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
@@ -1390,6 +1535,188 @@ var PIECE_INFO = [
     var t = $('toast'); t.textContent = msg; t.hidden = false;
     clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, 2800);
   }
+  function noop() { /* ignore */ }
+
+  /* ---------- native shell, preferences, sound and vibration ---------- */
+  // In the Android app the page runs in a WebView; ReactNativeWebView carries messages to the native side.
+  var NATIVE = !!window.ReactNativeWebView;
+  var SITE = 'https://mark2-creator.github.io/open-board/';
+  function nat(msg) { if (NATIVE) { try { window.ReactNativeWebView.postMessage(JSON.stringify(msg)); } catch (e) { /* ignore */ } } }
+  var prefs = Object.assign({ sound: true, haptics: true, theme: 'system', board: 'teal', pieces: 'classic' }, store.get('prefs') || {});
+  var BOARDS = [
+    { id: 'teal', t: 'Slate teal', l: '#DDE7E4', d: '#6A9895', def: true },
+    { id: 'green', t: 'Tournament', l: '#EBECD0', d: '#739552', need: 'first_win' },
+    { id: 'wood', t: 'Walnut', l: '#F0D9B5', d: '#B58863', need: 'p10' },
+    { id: 'blue', t: 'Ice blue', l: '#DEE3E6', d: '#8CA2AD', need: 's3' },
+    { id: 'coral', t: 'Coral', l: '#F5E3D7', d: '#CC8A6C', need: 'beat2' },
+    { id: 'night', t: 'Midnight', l: '#A7B0CF', d: '#4F5A86', need: 'online1' },
+    { id: 'gold', t: 'Champion', l: '#F4E7C1', d: '#BF9532', need: 'beat4' }
+  ];
+  var PIECESETS = [
+    { id: 'classic', t: 'Classic', w: '#FFFFFF', ws: '#14222B', b: '#2B3640', bs: '#0A1015', bd: '#A8B7C2', def: true },
+    { id: 'ivory', t: 'Ivory', w: '#F7EEDB', ws: '#2B1D12', b: '#4A3426', bs: '#140C06', bd: '#D7BC97', need: 'beat1' },
+    { id: 'mint', t: 'Mint', w: '#E9FFF6', ws: '#0E3B33', b: '#1D4F47', bs: '#06201B', bd: '#8FD6C4', need: 'games10' },
+    { id: 'ruby', t: 'Ruby', w: '#FFF4EE', ws: '#3A1010', b: '#8E1F2B', bs: '#2B0509', bd: '#F3A7AF', need: 'r1200' }
+  ];
+  function lookOf(list, id) { return list.filter(function (x) { return x.id === id; })[0] || list[0]; }
+  function isDark() { return prefs.theme === 'dark' || (prefs.theme !== 'light' && !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches)); }
+  function applyLook() {
+    var r = document.documentElement, b = lookOf(BOARDS, prefs.board), pc = lookOf(PIECESETS, prefs.pieces);
+    if (prefs.theme === 'light' || prefs.theme === 'dark') r.setAttribute('data-theme', prefs.theme); else r.removeAttribute('data-theme');
+    ['--sq-l', '--sq-d', '--pf-w', '--ps-w', '--pf-b', '--ps-b', '--pd-b'].forEach(function (k) { r.style.removeProperty(k); });
+    // the default board and pieces keep their separate dark-mode colours from the stylesheet
+    if (!b.def) { r.style.setProperty('--sq-l', b.l); r.style.setProperty('--sq-d', b.d); }
+    if (!pc.def) { r.style.setProperty('--pf-w', pc.w); r.style.setProperty('--ps-w', pc.ws); r.style.setProperty('--pf-b', pc.b); r.style.setProperty('--ps-b', pc.bs); r.style.setProperty('--pd-b', pc.bd); }
+    nat({ t: 'theme', dark: isDark() });
+  }
+  function savePrefs() { store.set('prefs', prefs); applyLook(); }
+  // Safe-area insets from the Android app (status bar, camera cutout, gesture bar), in CSS pixels.
+  window.OB_APPLY_INSETS = function () {
+    var i = window.OB_INSETS, st = document.documentElement.style; if (!i) return;
+    st.setProperty('--sa-t', (+i.t || 0) + 'px'); st.setProperty('--sa-b', (+i.b || 0) + 'px');
+    st.setProperty('--sa-l', (+i.l || 0) + 'px'); st.setProperty('--sa-r', (+i.r || 0) + 'px');
+  };
+  window.OB_APPLY_INSETS();
+  if (window.matchMedia) { try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyLook); } catch (e) { /* old WebView */ } }
+
+  // Sounds are synthesised with Web Audio, so the app ships no audio files.
+  var actx = null;
+  function audio() {
+    if (!prefs.sound) return null;
+    try {
+      if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+      if (actx.state === 'suspended') actx.resume();
+    } catch (e) { actx = null; }
+    return actx;
+  }
+  function tone(ac, t, f1, f2, dur, type, vol) {
+    var o = ac.createOscillator(), g = ac.createGain();
+    o.type = type || 'sine'; o.frequency.setValueAtTime(f1, t);
+    if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol || 0.2, t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + dur + 0.03);
+  }
+  function knock(ac, t, vol, freq) {
+    // a short band-passed noise burst: a wooden piece landing on the board
+    var len = Math.floor(ac.sampleRate * 0.07), buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
+    for (var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 5);
+    var src = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain();
+    src.buffer = buf; f.type = 'bandpass'; f.frequency.value = freq || 900; f.Q.value = 1.4; g.gain.value = vol || 0.9;
+    src.connect(f); f.connect(g); g.connect(ac.destination); src.start(t);
+  }
+  var SFX = {
+    move: function (ac, t) { knock(ac, t, 1.1, 950); tone(ac, t, 190, 120, 0.07, 'sine', 0.22); },
+    capture: function (ac, t) { knock(ac, t, 1.2, 1400); knock(ac, t + 0.045, 0.9, 700); tone(ac, t, 240, 110, 0.12, 'triangle', 0.22); },
+    check: function (ac, t) { knock(ac, t, 1, 950); tone(ac, t + 0.03, 880, 0, 0.11, 'square', 0.05); tone(ac, t + 0.14, 1175, 0, 0.16, 'square', 0.05); },
+    win: function (ac, t) { [523, 659, 784, 1047].forEach(function (f, i) { tone(ac, t + i * 0.11, f, 0, 0.3, 'triangle', 0.16); }); },
+    lose: function (ac, t) { [392, 330, 262].forEach(function (f, i) { tone(ac, t + i * 0.17, f, 0, 0.36, 'triangle', 0.15); }); },
+    draw: function (ac, t) { tone(ac, t, 440, 0, 0.25, 'triangle', 0.15); tone(ac, t + 0.2, 440, 0, 0.3, 'triangle', 0.13); },
+    good: function (ac, t) { tone(ac, t, 660, 0, 0.12, 'triangle', 0.16); tone(ac, t + 0.09, 990, 0, 0.2, 'triangle', 0.16); },
+    bad: function (ac, t) { tone(ac, t, 170, 120, 0.24, 'sawtooth', 0.06); },
+    unlock: function (ac, t) { [784, 988, 1175, 1568].forEach(function (f, i) { tone(ac, t + i * 0.07, f, 0, 0.22, 'sine', 0.13); }); }
+  };
+  function sfx(name) { var ac = audio(); if (!ac || !SFX[name]) return; try { SFX[name](ac, ac.currentTime + 0.01); } catch (e) { /* ignore */ } }
+  function buzz(kind) { // 'light' | 'medium' | 'heavy' | 'success' | 'error'
+    if (!prefs.haptics) return;
+    if (NATIVE) nat({ t: 'haptic', k: kind });
+    else if (navigator.vibrate && (!navigator.userActivation || navigator.userActivation.hasBeenActive)) { try { navigator.vibrate(kind === 'success' || kind === 'error' ? [25, 50, 25] : kind === 'light' ? 12 : 24); } catch (e) { /* ignore */ } }
+  }
+  function moveFx(pos, m) { // pos is the position after move m
+    if (!pos.hasLegal() && pos.inCheck()) { sfx('check'); buzz('heavy'); }
+    else if (pos.inCheck()) { sfx('check'); buzz('medium'); }
+    else if (C.flags(m) & (C.CAP | C.EP)) { sfx('capture'); buzz('light'); }
+    else sfx('move');
+  }
+
+  /* ---------- bottom sheet ---------- */
+  var sheetAct = null, sheetClose = null;
+  function modalOpen() { return !$('modal').hidden; }
+  function openSheet(html, onAct, onClose) {
+    $('sheet').innerHTML = html; $('modal').hidden = false; sheetAct = onAct || null; sheetClose = onClose || null; notifyNav();
+  }
+  function closeSheet(silent) {
+    if (!modalOpen()) return;
+    $('modal').hidden = true; $('sheet').innerHTML = ''; var f = sheetClose; sheetAct = sheetClose = null; notifyNav();
+    if (f && !silent) f();
+  }
+  $('modal').addEventListener('click', function (e) {
+    if (e.target === this) { closeSheet(); return; }
+    var b = e.target.closest('button[data-a]'); if (b && sheetAct && !b.disabled) sheetAct(b.getAttribute('data-a'), b);
+  });
+
+  /* ---------- progress: ratings, stats, daily streak, achievements ---------- */
+  var LV_ELO = [500, 800, 1100, 1500, 1900];
+  var P = Object.assign({
+    rating: 800, best: 800, rated: 0, games: 0, wins: 0, losses: 0, draws: 0, lv: [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+    online: 0, onlineWins: 0, local: 0, prating: 800, pbest: 800, psolved: 0, reviews: 0, ach: {}, recOnline: []
+  }, store.get('progress') || {});
+  function saveP() { store.set('progress', P); }
+  function cpuWins() { return P.lv.reduce(function (n, l) { return n + l[0]; }, 0); }
+  function elo(r, opp, score, k) { return Math.round(k * (score - 1 / (1 + Math.pow(10, (opp - r) / 400)))); }
+
+  function dayNum(d) { d = d || new Date(); return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 864e5); }
+  var streak = Object.assign({ cur: 0, best: 0, day: -9 }, store.get('streak') || {});
+  function streakNow() { var n = dayNum(); return streak.day === n || streak.day === n - 1 ? streak.cur : 0; }
+  function dailyDone() { return streak.day === dayNum(); }
+  function bumpStreak() {
+    var n = dayNum(); if (streak.day === n) return false;
+    streak.cur = streak.day === n - 1 ? streak.cur + 1 : 1; streak.day = n; streak.best = Math.max(streak.best, streak.cur);
+    store.set('streak', streak); return true;
+  }
+
+  var path = Object.assign({ on: false, pieces: 0, rules: 0, cpu: 0 }, store.get('path') || {});
+  var PATH = [
+    { id: 'pieces', t: 'How the pieces move', s: 'Look at all six pieces', ok: function () { return !!path.pieces; } },
+    { id: 'rules', t: 'The special rules', s: 'Castling, en passant and promotion', ok: function () { return !!path.rules; } },
+    { id: 'mate', t: 'Solve 3 checkmate puzzles', s: 'Start with mate in one', ok: function () { return P.psolved >= 3; } },
+    { id: 'cpu', t: 'Play the Beginner computer', s: 'Finish one game, win or lose', ok: function () { return !!path.cpu; } }
+  ];
+  function pathCount() { return PATH.filter(function (x) { return x.ok(); }).length; }
+  function markPath(k, quiet) {
+    if (path[k]) return;
+    path[k] = 1; store.set('path', path);
+    if (!quiet) { if (path.on && pathCount() < PATH.length) toast('Getting started: step done ✓'); checkAch(); }
+  }
+
+  var ACH = [
+    { id: 'first_win', i: '♟', t: 'First victory', d: 'Beat the computer', ok: function () { return cpuWins() >= 1; } },
+    { id: 'beat1', i: '♞', t: 'Casual no more', d: 'Beat the Casual level', ok: function () { return P.lv[1][0] >= 1; } },
+    { id: 'beat2', i: '♝', t: 'Club player', d: 'Beat the Club level', ok: function () { return P.lv[2][0] >= 1; } },
+    { id: 'beat3', i: '♜', t: 'Strong move', d: 'Beat the Strong level', ok: function () { return P.lv[3][0] >= 1; } },
+    { id: 'beat4', i: '♛', t: 'Master slayer', d: 'Beat the Master level', ok: function () { return P.lv[4][0] >= 1; } },
+    { id: 'games10', i: '⏱', t: 'Regular', d: 'Finish 10 games', ok: function () { return P.games >= 10; } },
+    { id: 'games50', i: '🏟', t: 'Seasoned', d: 'Finish 50 games', ok: function () { return P.games >= 50; } },
+    { id: 'r1200', i: '📈', t: 'Rising star', d: 'Reach a rating of 1200', ok: function () { return P.best >= 1200; } },
+    { id: 'r1500', i: '🚀', t: 'Contender', d: 'Reach a rating of 1500', ok: function () { return P.best >= 1500; } },
+    { id: 'p10', i: '🧩', t: 'Puzzler', d: 'Solve 10 puzzles', ok: function () { return P.psolved >= 10; } },
+    { id: 'p50', i: '🧠', t: 'Tactician', d: 'Solve 50 puzzles', ok: function () { return P.psolved >= 50; } },
+    { id: 'p200', i: '🎯', t: 'Mate machine', d: 'Solve 200 puzzles', ok: function () { return P.psolved >= 200; } },
+    { id: 's3', i: '🔥', t: 'On fire', d: 'Reach a 3-day puzzle streak', ok: function () { return streak.best >= 3; } },
+    { id: 's7', i: '📅', t: 'Week of chess', d: 'Reach a 7-day puzzle streak', ok: function () { return streak.best >= 7; } },
+    { id: 's30', i: '🏅', t: 'Unstoppable', d: 'Reach a 30-day puzzle streak', ok: function () { return streak.best >= 30; } },
+    { id: 'online1', i: '🌍', t: 'Hello, world', d: 'Finish an online game', ok: function () { return P.online >= 1; } },
+    { id: 'onlinew', i: '🤝', t: 'Online winner', d: 'Win an online game', ok: function () { return P.onlineWins >= 1; } },
+    { id: 'review1', i: '🔍', t: 'Student of the game', d: 'Review one of your games', ok: function () { return P.reviews >= 1; } },
+    { id: 'grad', i: '🎓', t: 'Graduate', d: 'Finish Getting started', ok: function () { return pathCount() === PATH.length; } }
+  ];
+  function achOf(id) { return ACH.filter(function (a) { return a.id === id; })[0]; }
+  function unlocked(x) { return !x.need || !!P.ach[x.need]; }
+  function unlockNote(a) {
+    var b = BOARDS.filter(function (x) { return x.need === a.id; })[0], pc = PIECESETS.filter(function (x) { return x.need === a.id; })[0];
+    return b ? b.t + ' board' : pc ? pc.t + ' pieces' : '';
+  }
+  // Unlocks anything newly earned. Returns the new achievements; quiet leaves the announcing to the caller.
+  function checkAch(quiet) {
+    var fresh = ACH.filter(function (a) { return !P.ach[a.id] && a.ok(); });
+    if (!fresh.length) return [];
+    fresh.forEach(function (a) { P.ach[a.id] = Date.now(); }); saveP();
+    if (!quiet) {
+      var notes = fresh.map(unlockNote).filter(Boolean);
+      toast('🏆 ' + fresh.map(function (a) { return a.t; }).join(' · ') + (notes.length ? '. New: ' + notes.join(', ') : ''));
+      sfx('unlock'); buzz('success');
+    }
+    return fresh;
+  }
 
   /* ---------- pieces ---------- */
   var GLYPH = {
@@ -1544,14 +1871,18 @@ var PIECE_INFO = [
   };
 
   /* ---------- navigation ---------- */
-  var VIEWS = ['home', 'cpu', 'online', 'game', 'learn', 'puzzles', 'lessons', 'study'];
+  var VIEWS = ['home', 'cpu', 'online', 'game', 'learn', 'puzzles', 'lessons', 'study', 'settings', 'stats'];
   var nav = [];
   function show(v, title) {
     VIEWS.forEach(function (n) { $('v-' + n).hidden = n !== v; });
     $('title').textContent = title || '';
     $('top').setAttribute('data-home', v === 'home' ? '1' : '0');
+    $('settings-btn').hidden = v === 'settings';
     window.scrollTo(0, 0);
+    notifyNav();
   }
+  // Tells the app whether the Android back button should go back inside the game or close the app.
+  function notifyNav() { nat({ t: 'nav', canBack: nav.length > 1 || modalOpen() || !!(G && G.promo) }); }
   function push(v, title, opts) {
     var o = opts || {}; nav.push({ v: v, title: title, leave: o.leave, refresh: o.refresh });
     if (STANDALONE) { try { history.pushState({ ob: nav.length }, ''); } catch (e) { /* ignore */ } }
@@ -1578,33 +1909,40 @@ var PIECE_INFO = [
   $('back').addEventListener('click', goBack);
 
   /* ---------- engine access ---------- */
-  var worker = null, workerTried = false, pend = {}, reqId = 0;
+  // Two workers: 'play' answers moves and hints, 'review' analyses finished games without delaying the next game.
+  var workers = {}, pend = {}, reqId = 0;
   function runLocal(id, req) {
     setTimeout(function () {
-      var r = null; try { r = E.thinkGame(req.start, req.moves, req.level, req.hint); } catch (x) { r = null; }
+      var r = null;
+      try { r = req.type === 'analyze' ? E.analyze(req.start, req.moves, req.depth, req.time) : E.thinkGame(req.start, req.moves, req.level, req.hint); } catch (x) { r = null; }
       var cb = pend[id]; delete pend[id]; if (cb) cb(r);
     }, 30);
   }
-  function getWorker() {
-    if (workerTried) return worker;
-    workerTried = true;
+  function getWorker(kind) {
+    if (kind in workers) return workers[kind];
+    var w = null;
     try {
       var src = $('s-core').textContent + '\n' + $('s-engine').textContent +
-        '\nself.onmessage=function(e){var d=e.data,r=null;try{r=Engine.thinkGame(d.start,d.moves,d.level,d.hint);}catch(x){r=null;}self.postMessage({id:d.id,res:r});};';
-      worker = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
-      worker.onmessage = function (e) { var cb = pend[e.data.id]; delete pend[e.data.id]; if (cb) cb(e.data.res); };
-      worker.onerror = function () {
-        worker = null;
-        var ids = Object.keys(pend);
-        ids.forEach(function (id) { if (pend[id] && pend[id].req) runLocal(id, pend[id].req); });
+        '\nself.onmessage=function(e){var d=e.data,r=null;if(d.type==="analyze"){try{r=Engine.analyze(d.start,d.moves,d.depth,d.time,function(i){self.postMessage({id:d.id,prog:i});});}catch(x){r=null;}self.postMessage({id:d.id,res:r});return;}try{r=Engine.thinkGame(d.start,d.moves,d.level,d.hint);}catch(x){r=null;}self.postMessage({id:d.id,res:r});};';
+      w = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+      w.onmessage = function (e) {
+        var d = e.data, cb = pend[d.id];
+        if (d.prog != null) { if (cb && cb.prog) cb.prog(d.prog); return; }
+        delete pend[d.id]; if (cb) cb(d.res);
       };
-    } catch (x) { worker = null; }
-    return worker;
+      w.onerror = function () {
+        workers[kind] = null;
+        Object.keys(pend).forEach(function (id) { if (pend[id] && pend[id].req && pend[id].kind === kind) runLocal(id, pend[id].req); });
+      };
+    } catch (x) { w = null; }
+    workers[kind] = w;
+    return w;
   }
-  function askEngine(req, cb) {
-    var id = ++reqId; pend[id] = cb; cb.req = req;
-    var w = getWorker();
-    if (w) w.postMessage({ id: id, start: req.start, moves: req.moves, level: req.level, hint: !!req.hint });
+  function askEngine(req, cb, prog, kind) {
+    var id = ++reqId; kind = kind || 'play';
+    pend[id] = cb; cb.req = req; cb.prog = prog; cb.kind = kind;
+    var w = getWorker(kind);
+    if (w) w.postMessage({ id: id, type: req.type, start: req.start, moves: req.moves, level: req.level, hint: !!req.hint, depth: req.depth, time: req.time });
     else runLocal(id, req);
   }
 
@@ -1662,7 +2000,7 @@ var PIECE_INFO = [
     if (!G) return;
     if (G.mode === 'online') return;
     if (G.over || !G.moves.length) { store.del('save'); return; }
-    store.set('save', { mode: G.mode, startFen: G.startFen, moves: G.moves, human: G.human, level: G.level, flip: G.flip });
+    store.set('save', { mode: G.mode, startFen: G.startFen, moves: G.moves, human: G.human, level: G.level, flip: G.flip, assisted: G.assisted });
   }
   function startGame(o) {
     leaveGame();
@@ -1670,7 +2008,8 @@ var PIECE_INFO = [
       id: ++gid, mode: o.mode, startFen: o.startFen || START, moves: (o.moves || []).slice(), human: o.human, level: o.level || 0,
       flip: !!o.flip, view: null, san: [], result: o.result || null, reason: o.reason || null, thinking: false, token: 0, hint: null,
       hintBusy: false, dismissed: false, overAt: 0, overShown: false, drawOffer: null, seats: null, code: o.code || null, ref: null,
-      unsub: null, wq: Promise.resolve(), confirm: null, promo: null, over: null
+      unsub: null, wq: Promise.resolve(), confirm: null, promo: null, over: null,
+      assisted: !!o.assisted, recorded: false, endInfo: null, review: null, rvBusy: null, rv: null, tc: 0, clock: null, tick: 0, pw: 0, qm: false
     };
     rebuild();
     G.over = computeOver();
@@ -1684,7 +2023,7 @@ var PIECE_INFO = [
   }
   function leaveGame() {
     if (!G) return;
-    G.token++; G.thinking = false; clearTimeout(G.confirmT); clearTimeout(G.overT);
+    G.token++; G.thinking = false; clearTimeout(G.confirmT); clearTimeout(G.overT); clearInterval(G.tick);
     if (G.unsub) { try { G.unsub(); } catch (e) { /* ignore */ } }
     if (G.mode === 'online' && G.over) store.del('online');
     G = null;
@@ -1701,7 +2040,9 @@ var PIECE_INFO = [
   }
   function doMove(m) {
     var uci = C.uci(m), san = C.sanOf(G.pos, m);
+    if (G.mode === 'online' && G.tc && G.clock) stampClock(G.pos.side);
     G.pos.make(m); G.moves.push(uci); G.san.push(san);
+    moveFx(G.pos, m);
     G.hint = null; G.confirm = null; G.promo = null; G.drawOffer = G.mode === 'online' ? null : G.drawOffer;
     G.over = computeOver();
     persist();
@@ -1734,12 +2075,13 @@ var PIECE_INFO = [
     else { minLen = 0; newLen = n - 1; }
     if (newLen < minLen || n === 0) return;
     G.token++; G.thinking = false; clearTimeout(G.overT); G.overT = 0;
+    if (G.mode === 'cpu') G.assisted = true;
     G.moves.length = newLen; G.result = null; G.reason = null; G.hint = null; G.view = null; G.dismissed = false; G.overShown = false;
     rebuild(); G.over = computeOver(); persist(); board.clear(); renderGame(); maybeEngine();
   }
   function hint() {
     if (!G || G.mode !== 'cpu' || G.hintBusy || !canMove()) return;
-    G.hintBusy = true; var id = G.id, tok = G.token; renderGame();
+    G.hintBusy = true; G.assisted = true; var id = G.id, tok = G.token; renderGame();
     askEngine({ start: G.startFen, moves: G.moves.slice(), level: 3, hint: true }, function (res) {
       if (!G || G.id !== id) return;
       G.hintBusy = false;
@@ -1747,10 +2089,10 @@ var PIECE_INFO = [
       renderGame();
     });
   }
-  function endByResult(result, reason) {
+  function endByResult(result, reason, quiet) {
     G.result = result; G.reason = reason; G.over = computeOver(); G.confirm = null; G.promo = null;
     G.token++; G.thinking = false;
-    if (G.mode === 'online') queueWrite({ result: result, reason: reason, drawOffer: null });
+    if (G.mode === 'online') queueWrite({ result: result, reason: reason, drawOffer: null }, quiet);
     persist(); board.clear(); renderGame();
   }
 
@@ -1790,7 +2132,8 @@ var PIECE_INFO = [
   function playerHTML(c, cnt) {
     var thinking = G.mode === 'cpu' && G.thinking && c !== G.human && !G.over;
     return '<span class="swatch ' + (c ? 'b' : 'w') + '"></span><span class="pname">' + esc(nameOf(c)) + '</span>' +
-      '<span class="meta">' + esc(thinking ? 'Thinking…' : metaOf(c)) + '</span><span class="caps">' + capturedHTML(cnt, c) + '</span>';
+      '<span class="meta">' + esc(thinking ? 'Thinking…' : metaOf(c)) + '</span><span class="caps">' + capturedHTML(cnt, c) + '</span>' +
+      (G.mode === 'online' && G.tc && G.clock ? '<span class="' + clockClass(c) + '" data-c="' + c + '">' + fmtClock(clockLeft(c)) + '</span>' : '');
   }
   function resultText(o) {
     var w = o.result === '1-0' ? 0 : o.result === '0-1' ? 1 : -1, head, sub = '';
@@ -1804,6 +2147,7 @@ var PIECE_INFO = [
       case 'repetition': sub = 'Same position three times'; break;
       case 'fifty': sub = 'Fifty moves without a capture or pawn move'; break;
       case 'agreement': sub = 'Draw agreed'; break;
+      case 'timeout': sub = (1 - w) === G.human ? 'You ran out of time' : 'Your opponent ran out of time'; break;
       case 'resign':
         if (G.mode === 'local') sub = (w ? 'White' : 'Black') + ' resigned';
         else sub = (1 - w) === G.human ? 'You resigned' : (G.mode === 'cpu' ? 'Computer resigned' : 'Your opponent resigned');
@@ -1813,6 +2157,8 @@ var PIECE_INFO = [
     return { head: head, sub: sub };
   }
   function statusInfo(shownN) {
+    if (G.view != null && G.rv && G.view === G.rv.i) return { k: '', t: 'Better was ' + sanAt(G.rv.i, G.rv.best) + ' (highlighted)' };
+    if (G.view != null && G.rv && G.view === G.rv.i + 1) return { k: '', t: (G.mode === 'local' ? 'Played ' : 'You played ') + G.san[G.rv.i] + RV_MARK[G.rv.kind] };
     if (G.view != null) return { k: '', t: 'Viewing move ' + G.view + ' of ' + G.moves.length };
     if (G.over) { var r = resultText(G.over); return { k: 'over', t: r.head + (r.sub ? '. ' + r.sub : '') }; }
     if (G.mode === 'online' && !bothSeated()) return { k: 'wait', t: 'Waiting for your friend to join' };
@@ -1827,13 +2173,15 @@ var PIECE_INFO = [
     return { k: k, t: t };
   }
   function movesHTML() {
-    var h = '', n = G.view == null ? G.moves.length : G.view;
+    var h = '', n = G.view == null ? G.moves.length : G.view, marks = {};
+    if (G.review) G.review.items.forEach(function (it) { marks[it.i] = it.kind; });
     var startSide = G.startFen.split(' ')[1] === 'b' ? 1 : 0, startFull = parseInt(G.startFen.split(' ')[5], 10) || 1;
     for (var i = 0; i < G.moves.length; i++) {
       var ply = i + startSide;
       if (i === 0 && startSide) h += '<span class="mn">' + startFull + '.</span><span class="mv"></span>';
       if (!(ply & 1)) h += '<span class="mn">' + (startFull + (ply >> 1)) + '.</span>';
-      h += '<button class="mv' + (i + 1 === n ? ' cur' : '') + '" data-i="' + i + '">' + esc(G.san[i]) + '</button>';
+      var rk = marks[i] || 0;
+      h += '<button class="mv' + (i + 1 === n ? ' cur' : '') + (rk ? ' k' + rk : '') + '" data-i="' + i + '">' + esc(G.san[i]) + RV_MARK[rk] + '</button>';
     }
     return h;
   }
@@ -1847,8 +2195,7 @@ var PIECE_INFO = [
       '<button class="btn" data-a="prev" aria-label="Previous move"' + (n === 0 ? ' disabled' : '') + '>' + CHEV_L + '</button>' +
       '<button class="btn" data-a="next" aria-label="Next move"' + (G.view == null ? ' disabled' : '') + '>' + CHEV_R + '</button></div>';
     if (G.over) {
-      if (G.mode === 'online') h += btn('lobby', 'Back to lobby', 'primary');
-      else h += btn('again', 'Play again', 'primary');
+      h += endButtons();
       h += btn('flip', 'Flip board');
       return h;
     }
@@ -1873,13 +2220,35 @@ var PIECE_INFO = [
     return h;
   }
   function bannerHTML() {
-    if (G.mode !== 'online') return '';
     var h = '';
+    if (G.rvBusy) {
+      h += '<div class="review"><b>Reviewing the game…</b><div class="progress"><i id="rv-prog" style="width:' + rvPct() + '%"></i></div><small class="muted">The engine checks every move. This takes a few seconds.</small></div>';
+    } else if (G.review) {
+      var rv = G.review, sides = G.mode === 'local' ? [0, 1] : [G.human];
+      h += '<div class="review"><b>Game review</b>';
+      sides.forEach(function (sd) {
+        var c = rv.counts[sd];
+        h += '<div class="counts">' + (G.mode === 'local' ? '<span>' + (sd ? 'Black' : 'White') + '</span>' : '') +
+          '<span class="k3">' + plural(c[3], 'blunder') + '</span><span class="k2">' + plural(c[2], 'mistake') + '</span><span>' + c[1] + (c[1] === 1 ? ' inaccuracy' : ' inaccuracies') + '</span></div>';
+      });
+      if (!rv.items.length) h += '<p>No mistakes found. Well played!</p>';
+      else {
+        h += '<small class="muted">Tap a move to see what was better.</small><div class="chips">' + rv.items.map(function (it) {
+          return '<button class="chip k' + it.kind + (G.rv && G.rv.i === it.i ? ' cur' : '') + '" data-a="rv" data-i="' + it.i + '">' + esc(moveLabel(it.i)) + RV_MARK[it.kind] + '</button>';
+        }).join('') + '</div>';
+        if (G.rv) h += '<div class="row"><button class="btn" data-a="rv-best">Better move</button><button class="btn" data-a="rv-played">' + (G.mode === 'local' ? 'Move played' : 'Your move') + '</button></div>';
+      }
+      h += '</div>';
+    }
+    if (G.mode !== 'online') return h;
     if (G.code && !G.over && bothSeated()) h += '<div class="banner"><div>Game code <span class="mono" style="letter-spacing:.14em">' + esc(G.code) + '</span></div></div>';
+    if (G.qm && !G.over && G.moves.length < 2 && G.created && Date.now() - G.created > 60000)
+      h += '<div class="banner"><div>Your opponent hasn’t moved. They may have left.</div><div class="row"><button class="btn" data-a="lobby">Leave game</button><button class="btn" data-a="dismiss">Keep waiting</button></div></div>';
     if (!G.over && G.drawOffer === 1 - G.human && (G.human === 0 || G.human === 1))
       h += '<div class="banner"><div>Your opponent offers a draw</div><div class="row"><button class="btn primary" data-a="acceptdraw">Accept</button><button class="btn" data-a="declinedraw">Decline</button></div></div>';
     return h;
   }
+  function plural(n, w) { return n + ' ' + w + (n === 1 ? '' : 's'); }
   function overlayHTML() {
     if (G.promo) {
       var c = G.promo.color, h = '<div class="ocard"><h3>Promote to</h3><div class="promo">';
@@ -1887,15 +2256,17 @@ var PIECE_INFO = [
       return h + '</div><button class="btn" data-a="cancelpromo">Cancel</button></div>';
     }
     if (G.mode === 'online' && !G.over && !bothSeated() && G.code) {
-      return '<div class="ocard"><h3>Your game code</h3><div class="code">' + esc(G.code) + '</div>' +
-        '<p class="sub">Send this code to your friend. They open this app, tap Play online and enter it.</p>' +
-        '<div class="row"><button class="btn primary" data-a="copycode">Copy code</button></div></div>';
+      return '<div class="ocard"><h3>Invite a friend</h3><div class="code">' + esc(G.code) + '</div>' +
+        '<p class="sub">Send the invite. The link opens this game, or your friend can tap Play online and type the code.</p>' +
+        '<div class="row"><button class="btn primary" data-a="wa">Invite on WhatsApp</button><button class="btn" data-a="share">Other ways to share</button><button class="btn" data-a="copycode">Copy code</button></div></div>';
     }
     if (G.over && G.overShown && !G.dismissed && G.view == null) {
-      var r = resultText(G.over);
-      return '<div class="ocard"><h3>' + esc(r.head) + '</h3><p class="sub">' + esc(r.sub) + '</p><div class="row">' +
-        (G.mode === 'online' ? '<button class="btn primary" data-a="lobby">Back to lobby</button>' : '<button class="btn primary" data-a="again">Play again</button>') +
-        '<button class="btn" data-a="dismiss">Review game</button></div></div>';
+      var r = resultText(G.over), ei = G.endInfo || {};
+      var h2 = '<div class="ocard"><h3>' + esc(r.head) + '</h3><p class="sub">' + esc(r.sub) + '</p>';
+      if (ei.delta != null) h2 += '<div class="rate">Rating ' + ei.after + ' <span class="' + (ei.delta >= 0 ? 'up' : 'down') + '">' + (ei.delta >= 0 ? '+' : '−') + Math.abs(ei.delta) + '</span></div>';
+      else if (ei.unrated) h2 += '<p class="sub" style="font-size:14px">Not rated, because you used undo or a hint.</p>';
+      (ei.ach || []).forEach(function (a) { var u = unlockNote(a); h2 += '<div class="ach-pill">🏆 ' + esc(a.t) + (u ? ' · ' + esc(u) + ' unlocked' : '') + '</div>'; });
+      return h2 + '<div class="row">' + endButtons() + '</div><button class="linkish" data-a="dismiss">Close</button></div>';
     }
     return '';
   }
@@ -1905,6 +2276,7 @@ var PIECE_INFO = [
     G.over = computeOver();
     if (G.over && !G.overShown && !G.overT) {
       G.overT = setTimeout(function () { if (G) { G.overShown = true; G.overT = 0; renderGame(); } }, 700);
+      onGameOver();
       persist();
       if (G.mode === 'online') store.del('online');
     }
@@ -1912,7 +2284,8 @@ var PIECE_INFO = [
     var pos = G.view == null ? G.pos : replay(n);
     var last = n > 0 ? uciSq(G.moves[n - 1]) : null;
     board.flip = G.flip; board.enabled = canMove();
-    board.set({ b: pos.b, last: last, check: pos.inCheck() ? pos.ks[pos.side] : -1, hint: G.hint });
+    var rvHint = G.rv && G.view === G.rv.i && G.rv.best ? uciSq(G.rv.best) : null;
+    board.set({ b: pos.b, last: last, check: pos.inCheck() ? pos.ks[pos.side] : -1, hint: rvHint || G.hint });
     var cnt = material(pos.b), bc = G.flip ? 1 : 0;
     $('p-top').innerHTML = playerHTML(1 - bc, cnt);
     $('p-bot').innerHTML = playerHTML(bc, cnt);
@@ -1923,6 +2296,123 @@ var PIECE_INFO = [
     $('g-actions').innerHTML = actionsHTML();
     var ov = overlayHTML(), oe = $('g-over');
     if (ov) { if (oe._h !== ov) { oe.innerHTML = ov; oe._h = ov; } oe.hidden = false; } else { oe.hidden = true; oe._h = ''; }
+    notifyNav();
+  }
+
+  /* ----- end of game: stats, rating, achievements ----- */
+  function onGameOver() {
+    if (!G || G.recorded) return;
+    G.recorded = true;
+    var o = G.over, w = o.result === '1-0' ? 0 : o.result === '0-1' ? 1 : -1, info = { ach: [] };
+    var mine = G.mode === 'cpu' || (G.mode === 'online' && (G.human === 0 || G.human === 1));
+    var score = w < 0 ? 0.5 : (!mine || w === G.human ? 1 : 0);
+    if (G.mode === 'cpu') {
+      var lv = P.lv[G.level]; P.games++;
+      if (score === 1) { P.wins++; lv[0]++; } else if (score === 0) { P.losses++; lv[1]++; } else { P.draws++; lv[2]++; }
+      if (G.assisted) info.unrated = true;
+      else {
+        info.delta = elo(P.rating, LV_ELO[G.level], score, P.rated < 10 ? 40 : 24);
+        P.rating = Math.max(100, P.rating + info.delta); P.rated++; P.best = Math.max(P.best, P.rating); info.after = P.rating;
+      }
+      if (G.level === 0) markPath('cpu', true);
+    } else if (G.mode === 'online' && mine && P.recOnline.indexOf(G.code) < 0) {
+      P.recOnline.push(G.code); if (P.recOnline.length > 40) P.recOnline.shift();
+      P.games++; P.online++;
+      if (score === 1) { P.wins++; P.onlineWins++; } else if (score === 0) P.losses++; else P.draws++;
+    } else if (G.mode === 'local') P.local++;
+    saveP();
+    info.ach = checkAch(true);
+    G.endInfo = info;
+    sfx(score === 1 ? 'win' : score === 0 ? 'lose' : 'draw'); buzz(score === 0 ? 'error' : 'success');
+    if (info.ach.length) setTimeout(function () { sfx('unlock'); }, 700);
+    // After the third win, ask Google Play for its in-app rating prompt (Google decides whether to show it).
+    if (mine && score === 1 && P.wins >= 3 && !store.get('askedReview')) { store.set('askedReview', 1); setTimeout(function () { nat({ t: 'review' }); }, 2500); }
+  }
+  function endButtons() {
+    var o = G.over, won = G.mode === 'cpu' && o && ((o.result === '1-0' && G.human === 0) || (o.result === '0-1' && G.human === 1)), h = '';
+    if (G.mode === 'cpu') {
+      if (won && G.level < 4) h += btn('nextlevel', 'Next level: ' + E.LEVELS[G.level + 1].name + ' ↑', 'primary');
+      h += btn('again', 'Rematch', won && G.level < 4 ? '' : 'primary');
+    } else if (G.mode === 'local') h += btn('again', 'Rematch', 'primary');
+    else h += btn('lobby', 'Back to lobby', 'primary');
+    if (!G.review && !G.rvBusy && G.moves.length >= 2) h += btn('review', 'Review game');
+    return h;
+  }
+  function nextLevel() {
+    var o = G; if (!o || o.mode !== 'cpu' || o.level >= 4) return;
+    cpuLevel = o.level + 1; store.set('level', cpuLevel);
+    startGame({ mode: 'cpu', human: o.human, level: cpuLevel, flip: o.human === 1 });
+  }
+
+  /* ----- game review: the engine scores every position; big drops in winning chances are mistakes ----- */
+  var RV_MARK = ['', '?!', '?', '??'];
+  function winPct(cp) { return 50 + 50 * (2 / (1 + Math.exp(-0.00368208 * cp)) - 1); }
+  function sanAt(i, u) { var pp = replay(i), m = u ? C.parseUci(pp, u) : 0; return m ? C.sanOf(pp, m) : (u || ''); }
+  function rvPct() { return G && G.rvBusy ? Math.round(100 * G.rvBusy.done / (G.moves.length + 1)) : 0; }
+  function startReview() {
+    if (!G || G.review || G.rvBusy || G.moves.length < 2) return;
+    var g = G; G.dismissed = true; G.rvBusy = { done: 0 };
+    askEngine({ type: 'analyze', start: G.startFen, moves: G.moves.slice(), depth: 4, time: 220 }, function (res) {
+      if (G !== g) return;
+      G.rvBusy = null;
+      if (!res) { toast('Could not review this game'); renderGame(); return; }
+      G.review = buildReview(res); P.reviews++; saveP(); checkAch();
+      if (G.review.worst >= 0) focusMistake(G.review.worst); else renderGame();
+    }, function (i) {
+      if (G === g && G.rvBusy) { G.rvBusy.done = i; var el = $('rv-prog'); if (el) el.style.width = rvPct() + '%'; }
+    }, 'review');
+    renderGame();
+  }
+  function buildReview(ev) {
+    var startSide = G.startFen.split(' ')[1] === 'b' ? 1 : 0, items = [], worst = -1, worstLoss = 0, counts = [[0, 0, 0, 0], [0, 0, 0, 0]];
+    for (var i = 0; i < G.moves.length && i + 1 < ev.length; i++) {
+      var side = (i + startSide) & 1;
+      if (G.mode !== 'local' && side !== G.human) continue;
+      if (ev[i].n <= 1 || ev[i].b === G.moves[i]) { counts[side][0]++; continue; }
+      var loss = winPct(Math.max(-1500, Math.min(1500, ev[i].s))) - winPct(-Math.max(-1500, Math.min(1500, ev[i + 1].s)));
+      // thresholds follow Lichess: 15/10/5 points of winning chance (0.3/0.2/0.1 on its -1..1 scale)
+      var kind = loss >= 15 ? 3 : loss >= 10 ? 2 : loss >= 5 ? 1 : 0;
+      counts[side][kind]++;
+      if (!kind) continue;
+      items.push({ i: i, kind: kind, best: ev[i].b });
+      if (loss > worstLoss) { worstLoss = loss; worst = i; }
+    }
+    return { items: items, worst: worst, counts: counts };
+  }
+  function focusMistake(i) {
+    var it = G.review.items.filter(function (x) { return x.i === i; })[0]; if (!it) return;
+    G.rv = { i: i, best: it.best, kind: it.kind }; G.view = i; G.dismissed = true; board.clear(); renderGame();
+  }
+
+  /* ----- online clocks ----- */
+  function fmtClock(ms) { var t = Math.ceil(ms / 1000), m = Math.floor(t / 60); t %= 60; return m + ':' + (t < 10 ? '0' : '') + t; }
+  function clockLeft(c) {
+    var k = G && G.clock; if (!k) return 0;
+    var left = c ? k.b : k.w;
+    // the clock of the side to move runs from the time of the last move (it starts after White's first move)
+    if (k.at && !G.over && G.pos.side === c && G.moves.length >= 1) left -= Math.max(0, Date.now() - k.at);
+    return Math.max(0, left);
+  }
+  function clockClass(c) {
+    var run = !G.over && G.pos.side === c && !!G.clock.at && G.moves.length >= 1;
+    return 'clock' + (run ? ' run' : '') + (clockLeft(c) < 20000 ? ' low' : '');
+  }
+  function stampClock(side) {
+    var k = G.clock, now = Date.now();
+    if (k.at && G.moves.length >= 1) { var used = Math.max(0, now - k.at); if (side) k.b = Math.max(0, k.b - used); else k.w = Math.max(0, k.w - used); }
+    k.at = now;
+  }
+  function clockTick() {
+    if (!G || G.mode !== 'online') return;
+    if (G.qm && !G.over && G.moves.length < 2 && G.created && Date.now() - G.created > 60000 && !G.goneShown) { G.goneShown = true; renderGame(); }
+    if (!G.tc || !G.clock) return;
+    [0, 1].forEach(function (c) {
+      var el = document.querySelector('#v-game .clock[data-c="' + c + '"]'); if (!el) return;
+      el.textContent = fmtClock(clockLeft(c)); el.className = clockClass(c);
+    });
+    if (!G.over && bothSeated() && G.clock.at && G.moves.length >= 1 && clockLeft(G.pos.side) <= 0 && !G.flagged) {
+      G.flagged = true; endByResult(G.pos.side ? '1-0' : '0-1', 'timeout', true);
+    }
   }
 
   /* ----- game UI events ----- */
@@ -1930,6 +2420,18 @@ var PIECE_INFO = [
     G.confirm = kind; clearTimeout(G.confirmT);
     var id = G.id; G.confirmT = setTimeout(function () { if (G && G.id === id) { G.confirm = null; renderGame(); } }, 3500);
     renderGame();
+  }
+  function inviteText(code) { return 'Play chess with me on Open Board! Game code: ' + code + '\n' + SITE + '?join=' + code; }
+  function shareInvite(how) {
+    var code = G && G.code; if (!code) return;
+    var text = inviteText(code);
+    if (NATIVE) { nat({ t: how === 'wa' ? 'whatsapp' : 'share', text: text }); return; }
+    if (how === 'share' && navigator.share) { navigator.share({ text: text }).catch(noop); return; }
+    if (how === 'share') {
+      try { navigator.clipboard.writeText(text).then(function () { toast('Invite copied. Paste it anywhere.'); }, function () { toast('Copy the code: ' + code); }); } catch (e) { toast('Copy the code: ' + code); }
+      return;
+    }
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
   }
   function copyCode() {
     var code = G && G.code; if (!code) return;
@@ -1949,7 +2451,7 @@ var PIECE_INFO = [
     gameAction(b.getAttribute('data-a'));
   });
   $('g-banner').addEventListener('click', function (e) {
-    var b = e.target.closest('button[data-a]'); if (b && G) gameAction(b.getAttribute('data-a'));
+    var b = e.target.closest('button[data-a]'); if (b && G) gameAction(b.getAttribute('data-a'), b);
   });
   $('g-over').addEventListener('click', function (e) {
     var p = e.target.closest('button[data-promo]');
@@ -1963,8 +2465,15 @@ var PIECE_INFO = [
     var i = parseInt(b.getAttribute('data-i'), 10) + 1;
     G.view = i >= G.moves.length ? null : i; board.clear(); renderGame();
   });
-  function gameAction(a) {
+  function gameAction(a, el) {
     switch (a) {
+      case 'review': startReview(); break;
+      case 'nextlevel': nextLevel(); break;
+      case 'wa': shareInvite('wa'); break;
+      case 'share': shareInvite('share'); break;
+      case 'rv': focusMistake(parseInt(el.getAttribute('data-i'), 10)); break;
+      case 'rv-best': if (G.rv) { G.view = G.rv.i; board.clear(); renderGame(); } break;
+      case 'rv-played': if (G.rv) { G.view = G.rv.i + 1 >= G.moves.length ? null : G.rv.i + 1; if (G.view == null) G.dismissed = true; board.clear(); renderGame(); } break;
       case 'prev': { var n = G.view == null ? G.moves.length : G.view; if (n > 0) { G.view = n - 1; board.clear(); renderGame(); } break; }
       case 'next': { if (G.view != null) { G.view = G.view + 1 >= G.moves.length ? null : G.view + 1; board.clear(); renderGame(); } break; }
       case 'flip': G.flip = !G.flip; if (G.mode !== 'online') persist(); renderGame(); break;
@@ -1987,7 +2496,7 @@ var PIECE_INFO = [
       case 'acceptdraw': endByResult('1/2-1/2', 'agreement'); break;
       case 'declinedraw': G.drawOffer = null; queueWrite({ drawOffer: null }); renderGame(); break;
       case 'cancelpromo': G.promo = null; board.clear(); renderGame(); break;
-      case 'dismiss': G.dismissed = true; renderGame(); break;
+      case 'dismiss': G.dismissed = true; G.qm = G.qm && G.moves.length < 2 ? false : G.qm; renderGame(); break;
       case 'again': playAgain(); break;
       case 'lobby': goBack(); break;
       case 'copycode': copyCode(); break;
@@ -2024,20 +2533,54 @@ var PIECE_INFO = [
   });
 
   /* ---------- online ---------- */
-  var OL = { state: 'pending', db: null, user: null, uid: null, canWrite: null, kind: '' };
+  var OL = { state: 'pending', db: null, user: null, uid: null, canWrite: null, kind: '', auth: null };
+
+  /* Anonymous sign-in with the Firebase Auth REST API. The ID token lets the database rules check who is moving. */
+  function makeAuth(key) {
+    var A = store.get('auth'), inflight = null;
+    function post(url, body, form) {
+      return fetch(url, { method: 'POST', headers: { 'Content-Type': form ? 'application/x-www-form-urlencoded' : 'application/json' }, body: form ? body : JSON.stringify(body) })
+        .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw { code: 'auth', message: (j && j.error && j.error.message) || 'HTTP ' + r.status }; return j; }); });
+    }
+    function signUp() {
+      return post('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + key, { returnSecureToken: true })
+        .then(function (j) { return { uid: j.localId, tok: j.idToken, refresh: j.refreshToken, exp: Date.now() + (+j.expiresIn || 3600) * 1000 }; });
+    }
+    function refresh() {
+      return post('https://securetoken.googleapis.com/v1/token?key=' + key, 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(A.refresh), true)
+        .then(function (j) { return { uid: j.user_id, tok: j.id_token, refresh: j.refresh_token, exp: Date.now() + (+j.expires_in || 3600) * 1000 }; });
+    }
+    function token() {
+      if (A && A.tok && A.exp > Date.now() + 60000) return Promise.resolve(A.tok);
+      if (!inflight) {
+        inflight = (A && A.refresh ? refresh().catch(function (e) { if (e && e.code === 'auth') return signUp(); throw e; }) : signUp())
+          .then(function (a) { A = a; store.set('auth', a); inflight = null; return a.tok; }, function (e) { inflight = null; throw e; });
+      }
+      return inflight;
+    }
+    return { token: token, uid: function () { return A && A.uid; } };
+  }
 
   /* Realtime Database adapter (REST + server-sent events). Used outside Claude, where there is no shared store. */
-  function makeFirebaseDb(base) {
+  function makeFirebaseDb(base, auth) {
     base = String(base).replace(/\/+$/, '');
-    function url(path) { return base + '/' + path + '.json'; }
+    function url(path, q) {
+      return (auth ? auth.token() : Promise.resolve(null)).then(function (t) {
+        var qs = []; if (t) qs.push('auth=' + encodeURIComponent(t));
+        Object.keys(q || {}).forEach(function (k) { qs.push(k + '=' + encodeURIComponent(q[k])); });
+        return base + '/' + path + '.json' + (qs.length ? '?' + qs.join('&') : '');
+      });
+    }
     function snapOf(path, val) {
       var has = val !== null && val !== undefined;
       return { id: path.split('/').pop(), exists: has, data: function () { return has ? val : undefined; }, metadata: { fromCache: false, hasPendingWrites: false } };
     }
-    function req(method, path, body) {
-      var o = { method: method };
-      if (body !== undefined) { o.headers = { 'Content-Type': 'application/json' }; o.body = JSON.stringify(body); }
-      return fetch(url(path), o).then(function (r) {
+    function req(method, path, body, q) {
+      return url(path, q).then(function (u) {
+        var o = { method: method };
+        if (body !== undefined) { o.headers = { 'Content-Type': 'application/json' }; o.body = JSON.stringify(body); }
+        return fetch(u, o);
+      }).then(function (r) {
         if (!r.ok) throw { code: (r.status === 401 || r.status === 403) ? 'invalid_argument' : 'unavailable', message: 'HTTP ' + r.status };
         return r.json();
       });
@@ -2046,8 +2589,9 @@ var PIECE_INFO = [
       return {
         id: path.split('/').pop(), path: path,
         get: function () { return req('GET', path).then(function (v) { return snapOf(path, v); }); },
-        set: function (d) { return req('PUT', path, d).then(function () {}); },
-        update: function (p) { return req('PATCH', path, p).then(function () {}); },
+        set: function (d) { return req('PUT', path, d).then(noop); },
+        update: function (p) { return req('PATCH', path, p).then(noop); },
+        remove: function () { return req('DELETE', path).then(noop); },
         acquire: function () { return Promise.resolve({ acquired: true }); },
         onSnapshot: function (next, err) {
           var closed = false, inflight = false, dirty = false, last = null, es = null, poll = null;
@@ -2062,15 +2606,22 @@ var PIECE_INFO = [
               if (dirty) { dirty = false; fetchNow(); }
             }, function () { inflight = false; });
           }
+          function openEs() {
+            if (closed || typeof EventSource === 'undefined') return;
+            url(path).then(function (u) {
+              if (closed) return;
+              try { es = new EventSource(u); } catch (e) { es = null; return; }
+              es.addEventListener('put', fetchNow); es.addEventListener('patch', fetchNow);
+              // the stream is closed when the 1-hour sign-in token expires; reopen it with a fresh token
+              es.addEventListener('auth_revoked', function () { if (es) es.close(); es = null; openEs(); });
+              es.addEventListener('cancel', function () { if (es) es.close(); es = null; });
+            }, noop);
+          }
           function onVis() { if (!document.hidden) fetchNow(); }
           document.addEventListener('visibilitychange', onVis);
           window.addEventListener('online', fetchNow);
-          fetchNow();
-          try {
-            es = new EventSource(url(path));
-            es.addEventListener('put', fetchNow); es.addEventListener('patch', fetchNow);
-          } catch (e) { es = null; }
-          poll = setInterval(fetchNow, es ? 8000 : 3000);
+          fetchNow(); openEs();
+          poll = setInterval(fetchNow, 5000);
           return function () {
             closed = true; clearInterval(poll);
             document.removeEventListener('visibilitychange', onVis); window.removeEventListener('online', fetchNow);
@@ -2079,7 +2630,8 @@ var PIECE_INFO = [
         }
       };
     }
-    return { doc: doc };
+    function list(path, q) { return req('GET', path, undefined, q); }
+    return { doc: doc, list: list };
   }
   function localUid() {
     var id = store.get('uid');
@@ -2089,10 +2641,15 @@ var PIECE_INFO = [
     for (var k = 0; k < a.length; k++) s += (a[k] < 16 ? '0' : '') + a[k].toString(16);
     id = 'p' + s; store.set('uid', id); return id;
   }
+  function connect() {
+    return OL.auth.token().then(function () { OL.uid = OL.auth.uid(); OL.state = 'ready'; }, function () { OL.state = 'offline'; });
+  }
   function initOnline() {
     if (STANDALONE) {
-      if (CFG.firebaseUrl) { OL.db = makeFirebaseDb(CFG.firebaseUrl); OL.uid = localUid(); OL.canWrite = true; OL.kind = 'own'; OL.state = 'ready'; }
-      else OL.state = 'unconfigured';
+      if (!CFG.firebaseUrl) { OL.state = 'unconfigured'; return Promise.resolve(); }
+      OL.kind = 'own'; OL.canWrite = true;
+      if (CFG.firebaseApiKey) { OL.auth = makeAuth(CFG.firebaseApiKey); OL.db = makeFirebaseDb(CFG.firebaseUrl, OL.auth); return connect(); }
+      OL.db = makeFirebaseDb(CFG.firebaseUrl, null); OL.uid = localUid(); OL.state = 'ready';
       return Promise.resolve();
     }
     var cl = window.claude;
@@ -2112,17 +2669,31 @@ var PIECE_INFO = [
     for (var i = 0; i < 5; i++) s += A.charAt(Math.floor(Math.random() * A.length));
     return s;
   }
+  function segVal(id) { return parseInt($(id).querySelector('[aria-checked="true"]').getAttribute('data-v'), 10) || 0; }
+  var joinFromLink = null;
   function renderOnline() {
+    if (OL.state === 'offline' && !OL.retrying) {
+      OL.retrying = true; OL.state = 'pending';
+      connect().then(function () { OL.retrying = false; if (!$('v-online').hidden) renderOnline(); });
+    }
     var note = $('on-note'), ok = OL.state === 'ready';
     if (OL.state === 'pending') note.textContent = 'Connecting…';
+    else if (OL.state === 'offline') note.textContent = 'Could not reach the game server. Check your internet connection, then come back to this screen.';
     else if (OL.state === 'unconfigured') note.textContent = 'Online play is not available in this version. The other modes work as normal.';
     else if (!ok) note.textContent = 'Online games work when this app is open in Claude and you are signed in. Right now that is not the case, so only the other modes are available.';
     else if (OL.canWrite === false) note.textContent = 'You can view this app but not change shared data, so you cannot start or join games. Ask the owner to give you Contributor access.';
-    else if (OL.kind === 'own') note.textContent = 'Play a friend on their own phone. Create a game, send them the code, and moves show up live on both screens. You both need an internet connection.';
+    else if (OL.kind === 'own') note.textContent = 'Play on two phones. Moves show up live on both screens. You both need an internet connection.';
     else note.textContent = 'Play a friend on their own phone. Share this app’s link with Contributor access, then send them your game code. Moves show up live on both screens.';
     var can = ok && OL.canWrite !== false;
-    ['on-create', 'on-join'].forEach(function (id) { $(id).disabled = !can; });
+    ['on-create', 'on-join', 'on-qm'].forEach(function (id) { $(id).disabled = !can; });
     $('on-code').disabled = !can;
+    $('on-qm-card').hidden = !(OL.kind === 'own' && OL.auth);
+    var app = $('on-app');
+    // On an Android phone's browser, offer to open an invite link in the installed app instead of joining here.
+    if (joinFromLink && !NATIVE && /Android/i.test(navigator.userAgent)) {
+      app.innerHTML = 'Have the Open Board app? <a href="intent://join/' + joinFromLink + '#Intent;scheme=openboard;package=com.fitlifesolutions.openboard;end">Open game ' + joinFromLink + ' in the app</a>, or tap Join game below to play here.';
+      app.hidden = false;
+    } else app.hidden = true;
     var saved = store.get('online');
     $('on-resume').hidden = true;
     if (can && saved && saved.code) {
@@ -2142,18 +2713,30 @@ var PIECE_INFO = [
   function onErr(msg) { $('on-err').textContent = msg; }
   function dbError(e) {
     var c = e && e.code;
-    if (c === 'invalid_argument') return 'You do not have permission to play online. Ask the owner for Contributor access.';
+    if (c === 'invalid_argument') return OL.kind === 'own' ? 'The game server refused this. Update the app and try again.' : 'You do not have permission to play online. Ask the owner for Contributor access.';
     if (c === 'quota_exceeded') return 'The game store is full. Ask the owner to clear old games.';
     return 'Could not reach the game server. Check your connection and try again.';
   }
+  // Deletes games idle for a week and stale quick-match entries, so the free database never fills up.
+  function sweepOld() {
+    if (!OL.auth || OL.state !== 'ready') return;
+    var lastSweep = store.get('sweepAt') || 0; if (Date.now() - lastSweep < 3600e3) return; store.set('sweepAt', Date.now());
+    OL.db.list('games', { orderBy: '"updated"', endAt: Date.now() - 7 * 864e5 - 600e3, limitToFirst: 20 }).then(function (g) {
+      Object.keys(g || {}).forEach(function (code) { OL.db.doc('games/' + code).remove().catch(noop); });
+    }).catch(noop);
+    OL.db.list('queue', { orderBy: '"t"', endAt: Date.now() - 300e3, limitToFirst: 20 }).then(function (q) {
+      Object.keys(q || {}).forEach(function (u) { OL.db.doc('queue/' + u).remove().catch(noop); });
+    }).catch(noop);
+  }
   $('on-create').addEventListener('click', function () {
     var btn = this; btn.disabled = true;
-    var color = segColor('seg-on-color'), tries = 0;
+    var color = segColor('seg-on-color'), tc = segVal('seg-on-tc'), tries = 0;
+    sweepOld();
     function attempt() {
       var code = genCode(), ref = OL.db.doc('games/' + code);
       return ref.get().then(function (s) {
         if (s.exists && tries++ < 5) return attempt();
-        var doc = { code: code, startFen: START, moves: [], white: color === 0 ? OL.uid : null, black: color === 1 ? OL.uid : null, result: null, reason: null, drawOffer: null, created: Date.now(), updated: Date.now() };
+        var now = Date.now(), doc = { code: code, startFen: START, moves: [], white: color === 0 ? OL.uid : null, black: color === 1 ? OL.uid : null, result: null, reason: null, drawOffer: null, tc: tc, wt: tc * 60000, bt: tc * 60000, created: now, updated: now };
         return ref.set(doc).then(function () { openOnline(code, color); });
       });
     }
@@ -2172,6 +2755,7 @@ var PIECE_INFO = [
       var d = s.data();
       if (d.white === OL.uid) return openOnline(code, 0);
       if (d.black === OL.uid) return openOnline(code, 1);
+      if (d.result) throw { msg: 'That game has already finished.' };
       var seat = !d.black ? 'black' : !d.white ? 'white' : null;
       if (!seat) throw { msg: 'That game already has two players.' };
       function claim(retry) {
@@ -2184,7 +2768,11 @@ var PIECE_INFO = [
             var d2 = s2.data() || {};
             if (d2[seat]) throw { msg: 'That game already has two players.' };
             var patch = { updated: Date.now() }; patch[seat] = OL.uid;
-            return ref.update(patch).then(function () { return ref.get(); }).then(function (s3) {
+            return ref.update(patch).catch(function (e) {
+              // the rules refuse to overwrite a seat, so a refusal here means someone else got it first
+              if (e && e.code === 'invalid_argument' && OL.auth) throw { msg: 'That game already has two players.' };
+              throw e;
+            }).then(function () { return ref.get(); }).then(function (s3) {
               var d3 = s3.data() || {};
               if (d3[seat] !== OL.uid) throw { msg: 'That game already has two players.' };
             });
@@ -2196,6 +2784,7 @@ var PIECE_INFO = [
   }
   function openOnline(code, color) {
     store.set('online', { code: code, color: color });
+    joinFromLink = null;
     var ref = OL.db.doc('games/' + code);
     var g = startGame({ mode: 'online', human: color, flip: color === 1, code: code });
     g.ref = ref; g.seats = { w: color === 0 ? OL.uid : null, b: color === 1 ? OL.uid : null };
@@ -2206,28 +2795,140 @@ var PIECE_INFO = [
     }, function (err) {
       if (G && G.id === g.id) toast(err && err.code === 'revoked' ? 'Access to this game was removed' : 'Lost connection to the game');
     });
+    g.tick = setInterval(clockTick, 250);
     renderGame();
   }
   function adoptDoc(d, meta) {
+    var pending = G.pw > 0 || !!(meta && meta.hasPendingWrites);
+    // announce the opponent only when they arrive while we wait, not on the first sync after joining
+    var wasSeated = G.synced ? bothSeated() : true; G.synced = true;
     G.seats = { w: d.white || null, b: d.black || null };
     G.drawOffer = (d.drawOffer === 0 || d.drawOffer === 1) ? d.drawOffer : null;
     G.result = d.result || null; G.reason = d.reason || null;
+    G.qm = !!d.qm; G.created = d.created || 0;
     var mv = Array.isArray(d.moves) ? d.moves : [];
     var same = mv.length === G.moves.length && mv.every(function (x, i) { return x === G.moves[i]; });
-    if (!same && (mv.length > G.moves.length || !(meta && meta.hasPendingWrites))) {
+    if (!same && (mv.length > G.moves.length || !pending)) {
+      var grew = mv.length > G.moves.length;
       G.moves = mv.slice(); rebuild(); G.hint = null; G.promo = null; board.clear();
+      if (grew && G.pos.side === G.human) {
+        var p0 = replay(G.moves.length - 1), m0 = C.parseUci(p0, G.moves[G.moves.length - 1]);
+        if (m0) { p0.make(m0); moveFx(p0, m0); }
+      }
     }
+    G.tc = +d.tc || 0;
+    if (G.tc && !pending) G.clock = { w: d.wt != null ? +d.wt : G.tc * 60000, b: d.bt != null ? +d.bt : G.tc * 60000, at: d.at || null };
+    if (!wasSeated && bothSeated() && (G.human === 0 || G.human === 1) && G.moves.length === 0) { sfx('good'); buzz('success'); toast('Your opponent is here. Good luck!'); }
     renderGame();
   }
-  function queueWrite(patch) {
+  function queueWrite(patch, quiet) {
     if (!G || G.mode !== 'online' || !G.ref) return;
     var g = G, p = {}; Object.keys(patch).forEach(function (k) { p[k] = patch[k]; }); p.updated = Date.now();
-    g.wq = g.wq.then(function () { return g.ref.update(p); }).catch(function () {
-      toast('Could not reach the server. Resyncing…');
-      return g.ref.get().then(function (s) { if (G === g && s.exists) adoptDoc(s.data(), s.metadata); }).catch(function () { /* ignore */ });
+    g.pw++;
+    g.wq = g.wq.then(function () {
+      return g.ref.update(p).then(function () { g.pw--; }, function (e) { g.pw--; throw e; });
+    }).catch(function () {
+      if (!quiet) toast('Could not reach the server. Resyncing…');
+      return g.ref.get().then(function (s) { if (G === g && s.exists) adoptDoc(s.data(), s.metadata); }).catch(noop);
     });
   }
-  function sendMoves() { queueWrite({ moves: G.moves.slice(), drawOffer: null }); }
+  function sendMoves() {
+    var p = { moves: G.moves.slice(), drawOffer: null };
+    if (G.tc && G.clock) { p.wt = G.clock.w; p.bt = G.clock.b; p.at = G.clock.at; }
+    queueWrite(p);
+  }
+
+  /* ----- quick match: a waiting list in the database; while two players wait, the newer one claims the older ----- */
+  var QM = null;
+  function qmText() {
+    var t = QM ? Math.floor((Date.now() - QM.t) / 1000) : 0;
+    return t < 45 ? 'Searching… ' + t + 's' : 'Still searching. Few people are looking right now, so keep this open or try again later.';
+  }
+  function qmStart() {
+    if (QM || OL.state !== 'ready' || !OL.auth) return;
+    var q = QM = { tc: segVal('seg-qm-tc'), t: Date.now(), queued: false, timer: 0, hb: 0, tick: 0, unsub: null };
+    sweepOld();
+    openSheet('<h3>Finding an opponent</h3><div class="spin" aria-hidden="true"></div><p class="muted" id="qm-sec" role="status">' + qmText() + '</p>' +
+      '<p class="muted" style="font-size:14px">' + (q.tc ? q.tc + '-minute game' : 'No clock') + '. Keep the app open while you wait.</p>' +
+      '<div class="row"><button class="btn" data-a="qm-cpu">Play the computer instead</button><button class="btn danger" data-a="qm-cancel">Cancel</button></div>',
+      function (a) {
+        if (a === 'qm-cancel') closeSheet();
+        else if (a === 'qm-cpu') { closeSheet(); push('cpu', 'Play the computer', { refresh: renderLevels }); }
+      }, qmCancel);
+    q.tick = setInterval(function () { var el = $('qm-sec'); if (el && QM === q) el.textContent = qmText(); }, 1000);
+    qmScan(q).then(function (done) {
+      if (done || QM !== q) return;
+      var me = OL.uid;
+      return OL.db.doc('queue/' + me).set({ t: q.t, tc: q.tc, hb: Date.now() }).then(function () {
+        if (QM !== q) { OL.db.doc('queue/' + me).remove().catch(noop); return; }
+        q.queued = true;
+        q.unsub = OL.db.doc('queue/' + me).onSnapshot(function (sn) { var d = sn.exists ? sn.data() : null; if (QM === q && d && d.match) qmMatched(q, d.match); }, noop);
+        q.timer = setInterval(function () { if (QM === q) qmScan(q).catch(noop); }, 4000);
+        q.hb = setInterval(function () { if (QM === q) OL.db.doc('queue/' + me).update({ hb: Date.now() }).catch(noop); }, 15000);
+      });
+    }).catch(function (e) { if (QM === q) { closeSheet(); toast(dbError(e)); } });
+  }
+  function qmStop(q) {
+    if (QM === q) QM = null;
+    clearInterval(q.timer); clearInterval(q.tick); clearInterval(q.hb); if (q.unsub) q.unsub();
+    if (q.queued) OL.db.doc('queue/' + OL.uid).remove().catch(noop);
+  }
+  function qmCancel() { if (QM) qmStop(QM); }
+  function qmScan(q) {
+    return OL.db.list('queue', { orderBy: '"t"', limitToFirst: 30 }).then(function (list) {
+      if (QM !== q) return true;
+      var me = OL.uid, now = Date.now(), c = [];
+      Object.keys(list || {}).forEach(function (u) {
+        var e = list[u];
+        if (u === me || !e || e.match || e.tc !== q.tc || now - (e.hb || e.t) > 40000) return;
+        if (q.queued && !(e.t < q.t || (e.t === q.t && u < me))) return;
+        c.push({ u: u, t: e.t });
+      });
+      c.sort(function (a, b) { return a.t - b.t; });
+      return qmClaim(q, c, 0);
+    });
+  }
+  function qmClaim(q, c, i) {
+    if (QM !== q || i >= c.length) return Promise.resolve(false);
+    var opp = c[i].u, code = genCode(), color = Math.random() < 0.5 ? 0 : 1, now = Date.now();
+    var doc = { code: code, startFen: START, moves: [], white: color === 0 ? OL.uid : opp, black: color === 1 ? OL.uid : opp,
+      tc: q.tc, wt: q.tc * 60000, bt: q.tc * 60000, qm: true, created: now, updated: now };
+    // create the game, then claim the opponent's waiting entry (the rules let only one player write its match)
+    return OL.db.doc('games/' + code).set(doc)
+      .then(function () { return OL.db.doc('queue/' + opp + '/match').set(code); })
+      .then(function () { if (QM !== q) return true; qmFound(q); openOnline(code, color); return true; },
+        function () { return qmClaim(q, c, i + 1); });
+  }
+  function qmFound(q) { qmStop(q); closeSheet(true); sfx('good'); buzz('success'); }
+  function qmMatched(q, code) {
+    qmFound(q);
+    var tries = 0;
+    (function load() {
+      OL.db.doc('games/' + code).get().then(function (sn) {
+        var d = sn.exists ? sn.data() : null, color = d ? (d.white === OL.uid ? 0 : d.black === OL.uid ? 1 : -1) : -1;
+        if (color >= 0) { openOnline(code, color); return; }
+        if (tries++ < 5) setTimeout(load, 700); else toast('Could not open the game. Try again.');
+      }, function () { if (tries++ < 5) setTimeout(load, 700); else toast('Could not open the game. Try again.'); });
+    })();
+  }
+  $('on-qm').addEventListener('click', qmStart);
+  bindSeg('seg-qm-tc'); bindSeg('seg-on-tc');
+
+  // Invite links: ?join=CODE on the website, openboard://join/CODE in the app.
+  function handleJoin(code) {
+    code = String(code || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5);
+    if (code.length !== 5) return;
+    closeSheet(true); goHome();
+    joinFromLink = code;
+    push('online', 'Play online', { refresh: renderOnline });
+    $('on-code').value = code; onErr('');
+    // phone browsers on Android wait for a choice between the app and the browser; elsewhere join straight away
+    if (!NATIVE && /Android/i.test(navigator.userAgent)) return;
+    olInit.then(function () {
+      if (OL.state !== 'ready') { onErr('Connect to the internet, then tap Join game.'); return; }
+      $('on-join').click();
+    });
+  }
 
   /* ---------- learn: shared study board ---------- */
   var S = null, sboard = null, sTimer = 0;
@@ -2251,39 +2952,76 @@ var PIECE_INFO = [
   }
 
   /* ----- learn lists ----- */
-  var solved = (store.get('solved') || []);
+  var solved = (store.get('solved') || []);   // classic puzzles, by FEN
+  var lsolved = {};                           // library puzzles, by index
+  (store.get('lsolved') || []).forEach(function (i) { lsolved[i] = 1; });
   function isSolved(fen) { return solved.indexOf(fen) >= 0; }
-  function markSolved(fen) { if (!isSolved(fen)) { solved.push(fen); store.set('solved', solved); } }
+  function solvedCount() { return solved.length + Object.keys(lsolved).length; }
+  function markSolved(pz) {
+    if (pz.lib != null) { if (lsolved[pz.lib]) return false; lsolved[pz.lib] = 1; store.set('lsolved', Object.keys(lsolved).map(Number)); return true; }
+    if (isSolved(pz.fen)) return false;
+    solved.push(pz.fen); store.set('solved', solved); return true;
+  }
   var CH = '<svg class="chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>';
   function renderLearn() {
-    var done = PUZZLES.filter(function (p) { return isSolved(p.fen); }).length;
     $('learn-list').innerHTML =
       '<button class="row-btn" data-l="pieces"><span><b>How the pieces move</b><small>See every move each piece can make</small></span>' + CH + '</button>' +
       '<button class="row-btn" data-l="basics"><span><b>Special rules</b><small>Castling, en passant and promotion</small></span>' + CH + '</button>' +
       '<button class="row-btn" data-l="openings"><span><b>Openings</b><small>Six classic ways to start a game, move by move</small></span>' + CH + '</button>' +
-      '<button class="row-btn" data-l="puzzles"><span><b>Checkmate puzzles</b><small>Find the move that wins the game</small></span><span class="badge">' + done + '/' + PUZZLES.length + '</span>' + CH + '</button>';
+      '<button class="row-btn" data-l="puzzles"><span><b>Puzzles</b><small>Daily puzzle, rated training and classic checkmates</small></span><span class="badge">' + solvedCount() + ' solved</span>' + CH + '</button>';
   }
   $('learn-list').addEventListener('click', function (e) {
     var b = e.target.closest('[data-l]'); if (!b) return;
     var l = b.getAttribute('data-l');
     if (l === 'pieces') openGuide();
-    else if (l === 'puzzles') push('puzzles', 'Checkmate puzzles', { refresh: renderPuzzles });
+    else if (l === 'puzzles') openPuzzles();
     else push('lessons', l === 'basics' ? 'Special rules' : 'Openings', { refresh: function () { renderLessons(l); } });
   });
+  function openPuzzles() { push('puzzles', 'Puzzles', { refresh: renderPuzzles }); }
+
+  /* ----- puzzle sources: 19 classics, plus the library for daily and rated training ----- */
+  var LIBP = null;
+  function lib() {
+    if (!LIBP) LIBP = PUZZLE_LIB.split('\n').map(function (l, i) { var a = l.split(';'); return { fen: a[0], r: +a[1], n: +a[2], t: PUZZLE_TAGS[+a[3]] || 'Checkmate', lib: i }; });
+    return LIBP;
+  }
+  function classicP(i) { var c = PUZZLES[i]; return { fen: c.fen, n: c.n, t: c.t, tip: c.tip, ci: i }; }
+  function dailyP() {
+    // Everyone gets the same puzzle on the same day. It gets harder through the week: Monday is the easiest.
+    var L = lib(), n = dayNum(), wd = (new Date().getDay() + 6) % 7, lo = 500 + wd * 220, hi = lo + 450;
+    var pool = L.filter(function (x) { return x.r >= lo && x.r < hi; }); if (!pool.length) pool = L;
+    return pool[(n * 7919) % pool.length];
+  }
+  function trainP() {
+    var L = lib(), r = P.prating, c = L.filter(function (x) { return !lsolved[x.lib] && (!S || !S.p || S.p.lib !== x.lib); });
+    if (!c.length) c = L.slice();
+    c.sort(function (a, b) { return Math.abs(a.r - r) - Math.abs(b.r - r); });
+    c = c.slice(0, 30); return c[Math.floor(Math.random() * c.length)];
+  }
+  function dailyCardHTML() {
+    var dd = dailyDone(), st = streakNow();
+    return '<button class="tcard ' + (dd ? 'done' : 'hot') + '" data-p="daily"><span class="big">' + st + '<small>day' + (st === 1 ? '' : 's') + '</small></span><span><b>' +
+      (dd ? 'Daily puzzle solved ✓' : 'Daily puzzle') + '</b><small>' +
+      (dd ? '🔥 ' + st + '-day streak. Come back tomorrow.' : st ? '🔥 Solve today’s puzzle to keep your ' + st + '-day streak' : 'Solve one puzzle a day to build a streak') + '</small></span></button>';
+  }
   function renderPuzzles() {
-    var h = '';
+    var h = dailyCardHTML() + '<div class="card"><div><h3>Rated training</h3><p class="muted">Puzzle rating <b>' + P.prating + '</b> · ' + solvedCount() + ' solved</p></div>' +
+      '<small class="muted">Puzzles get harder as your rating goes up. Solve on your first try to gain points.</small><button class="btn primary wide" data-p="train">Start training</button></div>';
     [1, 2].forEach(function (n) {
-      h += '<div class="group-title">Mate in ' + n + '</div><div class="grid-num">';
-      PUZZLES.forEach(function (p, i) {
-        if (p.n !== n) return;
-        h += '<button class="num-btn' + (isSolved(p.fen) ? ' done' : '') + '" data-i="' + i + '" aria-label="Puzzle ' + (i + 1) + (isSolved(p.fen) ? ', solved' : '') + '">' + (i + 1) + '</button>';
+      h += '<div class="group-title">Classic · mate in ' + n + '</div><div class="grid-num">';
+      PUZZLES.forEach(function (c, i) {
+        if (c.n !== n) return;
+        h += '<button class="num-btn' + (isSolved(c.fen) ? ' done' : '') + '" data-i="' + i + '" aria-label="Puzzle ' + (i + 1) + (isSolved(c.fen) ? ', solved' : '') + '">' + (i + 1) + '</button>';
       });
       h += '</div>';
     });
+    h += '<p class="muted" style="font-size:13px">Daily and training puzzles come from the free Lichess puzzle database (CC0).</p>';
     $('puzzle-list').innerHTML = h;
   }
   $('puzzle-list').addEventListener('click', function (e) {
-    var b = e.target.closest('.num-btn'); if (b) openPuzzle(parseInt(b.getAttribute('data-i'), 10), true);
+    var d = e.target.closest('[data-p]');
+    if (d) { var k = d.getAttribute('data-p'); openPuzzle(k === 'daily' ? dailyP() : trainP(), k, true); return; }
+    var b = e.target.closest('.num-btn'); if (b) openPuzzle(classicP(parseInt(b.getAttribute('data-i'), 10)), 'classic', true);
   });
   function renderLessons(group) {
     $('lesson-list').innerHTML = LESSONS.filter(function (l) { return l.group === group; }).map(function (l) {
@@ -2296,32 +3034,45 @@ var PIECE_INFO = [
   });
 
   /* ----- puzzles ----- */
-  var solCache = {};
+  var solCache = {}, ratedOnce = {};
   function solutions(pos, n, key) {
     var k = key + ':' + n;
     if (!solCache[k]) solCache[k] = C.mateMoves(pos, n);
     return solCache[k];
   }
-  function openPuzzle(i, pushView) {
-    var p = PUZZLES[i], pos = C.Position.fromFEN(p.fen);
-    S = { kind: 'puzzle', i: i, pos: pos, n: p.n, rem: p.n, done: false, busy: false, hintStep: 0, fb: '', fbk: '', last: null, hint: null, flip: pos.side === 1 };
-    S.sol = solutions(pos, p.n, p.fen);
-    if (pushView) push('study', 'Puzzle ' + (i + 1), { leave: leaveStudy });
-    else { $('title').textContent = 'Puzzle ' + (i + 1); nav[nav.length - 1].title = 'Puzzle ' + (i + 1); }
+  function openPuzzle(pz, ctx, pushView) {
+    var pos = C.Position.fromFEN(pz.fen);
+    clearTimeout(sTimer);
+    S = { kind: 'puzzle', p: pz, ctx: ctx, pos: pos, n: pz.n, rem: pz.n, done: false, busy: false, hintStep: 0, fb: '', fbk: '', last: null, hint: null, flip: pos.side === 1, clean: true };
+    S.sol = solutions(pos, pz.n, pz.fen);
+    var title = ctx === 'daily' ? 'Daily puzzle' : ctx === 'train' ? 'Rated training' : 'Puzzle ' + (pz.ci + 1);
+    if (pushView) push('study', title, { leave: leaveStudy });
+    else { $('title').textContent = title; nav[nav.length - 1].title = title; }
     renderPuzzle();
   }
+  // Rated training: the first attempt at each puzzle moves the puzzle rating, up for a clean solve, down otherwise.
+  function ratePuzzle(score) {
+    if (S.ctx !== 'train' || ratedOnce[S.p.lib] || lsolved[S.p.lib]) return;
+    ratedOnce[S.p.lib] = 1;
+    S.rdelta = elo(P.prating, S.p.r, score, 24); P.prating = Math.max(100, P.prating + S.rdelta); P.pbest = Math.max(P.pbest, P.prating); saveP();
+  }
   function renderPuzzle() {
-    var p = PUZZLES[S.i], side = S.pos.side;
+    var pz = S.p, side0 = C.Position.fromFEN(pz.fen).side;
     setStudyBoard(S.pos, S.flip, S.last, S.hint, !S.done && !S.busy);
-    var side0 = C.Position.fromFEN(p.fen).side;
-    var h = '<h3>' + esc(p.t) + '</h3><p class="muted">Puzzle ' + (S.i + 1) + ' of ' + PUZZLES.length + ' · Mate in ' + p.n + '</p>' +
+    var sub = S.ctx === 'daily' ? 'Daily puzzle · ' + new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + ' · Mate in ' + pz.n
+      : S.ctx === 'train' ? 'Puzzle rated ' + pz.r + ' · Mate in ' + pz.n + ' · You: ' + P.prating
+      : 'Puzzle ' + (pz.ci + 1) + ' of ' + PUZZLES.length + ' · Mate in ' + pz.n;
+    var h = '<h3>' + esc(pz.t) + '</h3><p class="muted">' + esc(sub) + '</p>' +
       '<p>' + (side0 ? 'Black' : 'White') + ' to move. ' + (S.done ? '' : (S.rem === 1 ? 'Find checkmate in one move.' : 'Find the first move of a forced checkmate in two.')) + '</p>';
-    if (S.tipShown && p.tip) h += '<p class="tip">' + esc(p.tip) + '</p>';
+    if (S.tipShown && pz.tip) h += '<p class="tip">' + esc(pz.tip) + '</p>';
     h += '<div class="fb ' + S.fbk + '" role="status">' + esc(S.fb) + '</div><div class="actions">';
     if (S.done) {
-      h += (S.i + 1 < PUZZLES.length ? '<button class="btn primary" data-a="next">Next puzzle</button>' : '<button class="btn primary" data-a="list">All puzzles</button>') + '<button class="btn" data-a="restart">Play again</button>';
+      if (S.ctx === 'daily') h += '<button class="btn primary" data-a="train">Train more puzzles</button><button class="btn" data-a="list">All puzzles</button>';
+      else if (S.ctx === 'train') h += '<button class="btn primary" data-a="train">Next puzzle</button><button class="btn" data-a="list">All puzzles</button>';
+      else h += (pz.ci + 1 < PUZZLES.length ? '<button class="btn primary" data-a="next">Next puzzle</button>' : '<button class="btn primary" data-a="list">All puzzles</button>') + '<button class="btn" data-a="restart">Play again</button>';
     } else {
       h += '<button class="btn" data-a="hint"' + (S.busy ? ' disabled' : '') + '>Hint</button><button class="btn" data-a="answer"' + (S.busy ? ' disabled' : '') + '>Show answer</button><button class="btn" data-a="restart">Restart</button>';
+      if (S.ctx === 'train') h += '<button class="btn" data-a="train">Skip</button>';
     }
     $('study-panel').innerHTML = h + '</div>';
   }
@@ -2332,35 +3083,49 @@ var PIECE_INFO = [
     var m = ms[0];
     ms.forEach(function (x) { if (C.promo(x) === C.Q) m = x; });
     if (S.sol.indexOf(m) < 0) {
-      S.fb = S.rem === 1 ? 'Not checkmate. Try another move.' : 'That does not force mate. Try another move.'; S.fbk = 'bad';
-      renderPuzzle(); studyBoard().shake(from); return;
+      S.clean = false; ratePuzzle(0);
+      S.fb = (S.rem === 1 ? 'Not checkmate. Try another move.' : 'That does not force mate. Try another move.') + (S.rdelta != null && S.rdelta < 0 ? ' (Puzzle rating ' + S.rdelta + ')' : ''); S.fbk = 'bad';
+      sfx('bad'); buzz('error'); renderPuzzle(); studyBoard().shake(from); return;
     }
     S.pos.make(m); S.last = [from, to]; S.hint = null; S.hintStep = 0;
-    if (!S.pos.hasLegal() && S.pos.inCheck()) {
-      S.done = true; S.fb = 'Checkmate! Puzzle solved.'; S.fbk = 'good'; markSolved(PUZZLES[S.i].fen); renderPuzzle(); return;
-    }
+    if (!S.pos.hasLegal() && S.pos.inCheck()) { puzzleSolved(); return; }
+    moveFx(S.pos, m);
     S.rem--; S.busy = true; S.fb = 'Good move. Waiting for the reply…'; S.fbk = 'good'; renderPuzzle();
-    var id = S.i;
+    var cur = S;
     sTimer = setTimeout(function () {
-      if (!S || S.i !== id) return;
+      if (S !== cur) return;
       var lm = S.pos.legalMoves(), r = lm[Math.floor(Math.random() * lm.length)];
-      S.pos.make(r); S.last = [C.from(r), C.to(r)];
+      S.pos.make(r); S.last = [C.from(r), C.to(r)]; moveFx(S.pos, r);
       S.sol = C.mateMoves(S.pos, 1); S.busy = false; S.fb = 'Now deliver checkmate.'; S.fbk = ''; renderPuzzle();
     }, 650);
+  }
+  function puzzleSolved() {
+    S.done = true;
+    if (markSolved(S.p)) P.psolved++;
+    if (S.clean) ratePuzzle(1);
+    var msg = 'Checkmate! Puzzle solved.';
+    if (S.ctx === 'daily' && bumpStreak()) msg = 'Checkmate! 🔥 ' + streak.cur + '-day streak.';
+    if (S.rdelta != null) msg += ' Puzzle rating ' + (S.rdelta >= 0 ? '+' : '−') + Math.abs(S.rdelta) + ' → ' + P.prating + '.';
+    S.fb = msg; S.fbk = 'good'; saveP();
+    sfx('win'); buzz('success');
+    renderPuzzle();
+    checkAch();
   }
   $('study-panel').addEventListener('click', function (e) {
     var b = e.target.closest('button[data-a]'); if (!b || !S || b.disabled) return;
     var a = b.getAttribute('data-a');
     if (S.kind === 'puzzle') {
-      if (a === 'next') openPuzzle(S.i + 1, false);
+      if (a === 'next') openPuzzle(classicP(S.p.ci + 1), 'classic', false);
+      else if (a === 'train') openPuzzle(trainP(), 'train', false);
       else if (a === 'list') goBack();
-      else if (a === 'restart') { clearTimeout(sTimer); openPuzzle(S.i, false); }
+      else if (a === 'restart') { openPuzzle(S.p, S.ctx, false); }
       else if (a === 'hint') {
-        var m = S.sol[0]; S.hintStep++; S.tipShown = true;
+        var m = S.sol[0]; S.hintStep++; S.tipShown = true; S.clean = false; ratePuzzle(0);
         S.hint = S.hintStep === 1 ? [C.from(m), C.from(m)] : [C.from(m), C.to(m)];
         S.fb = S.hintStep === 1 ? 'Move the highlighted piece.' : 'Move it to the highlighted square.'; S.fbk = ''; renderPuzzle();
       } else if (a === 'answer') {
-        var m2 = S.sol[0]; S.hint = [C.from(m2), C.to(m2)]; S.fb = 'Answer: ' + C.sanOf(S.pos, m2); S.fbk = ''; S.tipShown = true; renderPuzzle();
+        var m2 = S.sol[0]; S.clean = false; ratePuzzle(0);
+        S.hint = [C.from(m2), C.to(m2)]; S.fb = 'Answer: ' + C.sanOf(S.pos, m2); S.fbk = ''; S.tipShown = true; renderPuzzle();
       }
     } else if (S.kind === 'lesson') lessonAction(a);
   });
@@ -2391,6 +3156,12 @@ var PIECE_INFO = [
     else h += '<button class="btn" data-a="restart">Replay</button>';
     h += '</div>';
     if (S.step === n && l.group === 'openings') h += '<button class="btn primary wide" data-a="play">Play on against the computer</button>';
+    if (S.step === n && l.group === 'basics') {
+      var seen = store.get('lessonsDone') || [];
+      if (seen.indexOf(l.id) < 0) { seen.push(l.id); store.set('lessonsDone', seen); }
+      var basics = LESSONS.filter(function (x) { return x.group === 'basics'; });
+      if (basics.every(function (x) { return seen.indexOf(x.id) >= 0; })) markPath('rules');
+    }
     $('study-panel').innerHTML = h;
   }
   function lessonAction(a) {
@@ -2409,7 +3180,7 @@ var PIECE_INFO = [
     3: 'k7/8/8/8/3B4/8/8/7K w - - 0 1', 2: 'k7/8/8/8/3N4/8/8/7K w - - 0 1', 1: 'k7/8/8/8/8/3p1p2/4P3/7K w - - 0 1'
   };
   function openGuide() {
-    S = { kind: 'guide', k: 6 };
+    S = { kind: 'guide', k: 6, seen: {} };
     push('study', 'How the pieces move', { leave: leaveStudy });
     renderGuide();
   }
@@ -2421,11 +3192,15 @@ var PIECE_INFO = [
     lm.forEach(function (m) { if (C.from(m) === sq && !seen[C.to(m)]) { seen[C.to(m)] = 1; t.push({ to: C.to(m), cap: !!(C.flags(m) & C.CAP) }); } });
     b.select(sq, t);
     var info = PIECE_INFO.filter(function (x) { return x.k === k; })[0];
+    S.seen[k] = 1;
+    var nSeen = Object.keys(S.seen).length;
+    if (nSeen === 6) markPath('pieces');
     var tabs = PIECE_INFO.map(function (x) {
       return '<button role="radio" aria-checked="' + (x.k === k) + '" data-k="' + x.k + '" aria-label="' + x.name + '">' + pieceHTML(x.k, 0) + '</button>';
     }).join('');
     $('study-panel').innerHTML = '<div class="pieces-tabs" role="radiogroup" aria-label="Piece">' + tabs + '</div><h3>' + info.name + '</h3><p>' + esc(info.text) + '</p>' +
-      '<p class="muted">The dots show where the ' + info.name.toLowerCase() + ' can go' + (k === 1 ? ', and the rings show what it can capture.' : '.') + '</p>';
+      '<p class="muted">The dots show where the ' + info.name.toLowerCase() + ' can go' + (k === 1 ? ', and the rings show what it can capture.' : '.') + '</p>' +
+      (nSeen < 6 ? '<p class="muted" style="font-size:14px">Tap each piece above to see how it moves (' + nSeen + ' of 6).</p>' : '<p class="fb good">You’ve seen all six pieces.</p>');
   }
   $('study-panel').addEventListener('click', function (e) {
     var b = e.target.closest('.pieces-tabs button'); if (!b || !S || S.kind !== 'guide') return;
@@ -2436,7 +3211,7 @@ var PIECE_INFO = [
   var MODES = [
     { id: 'cpu', t: 'Play the computer', s: 'Five levels, from beginner to master', p: 2 },
     { id: 'local', t: 'Two players', s: 'Pass and play on one device', p: 6 },
-    { id: 'online', t: 'Play online', s: 'Share a code and play a friend', p: 3 },
+    { id: 'online', t: 'Play online', s: 'Quick match or invite a friend', p: 3 },
     { id: 'learn', t: 'Learn', s: 'Puzzles, openings and the rules', p: 1 }
   ];
   function buildHome() {
@@ -2446,6 +3221,25 @@ var PIECE_INFO = [
       return '<button class="mode" data-m="' + m.id + '"><span class="tile">' + pieceHTML(m.p, 0) + '</span><span><b>' + m.t + '</b><small>' + m.s + '</small></span></button>';
     }).join('');
   }
+  function profileCardHTML() {
+    var got = Object.keys(P.ach).length;
+    return '<button class="tcard" data-p="stats"><span class="big">' + P.rating + '<small>rating</small></span><span><b>Your progress</b><small>🏆 ' + got + ' of ' + ACH.length + ' achievements · ' + plural(P.games, 'game') + ' played</small></span></button>';
+  }
+  function pathHTML() {
+    var n = pathCount();
+    if (!path.on || n === PATH.length) return '';
+    var next = PATH.filter(function (x) { return !x.ok(); })[0];
+    return '<div class="card path"><div><h3>Getting started</h3><p class="muted">' + n + ' of ' + PATH.length + ' done</p></div><div class="bar"><i style="width:' + (n / PATH.length * 100) + '%"></i></div><ol>' +
+      PATH.map(function (x) { return '<li class="' + (x.ok() ? 'ok' : '') + '"><button data-path="' + x.id + '"><span class="ck"></span><span><b>' + esc(x.t) + '</b><small class="muted">' + esc(x.s) + '</small></span></button></li>'; }).join('') +
+      '</ol><button class="btn primary wide" data-path="' + next.id + '">Continue: ' + esc(next.t) + '</button><button class="linkish" data-path="hide">Hide this</button></div>';
+  }
+  function pathGo(id) {
+    if (id === 'hide') { path.on = false; store.set('path', path); refreshHome(); toast('You can bring it back in Settings'); return; }
+    if (id === 'pieces') openGuide();
+    else if (id === 'rules') push('lessons', 'Special rules', { refresh: function () { renderLessons('basics'); } });
+    else if (id === 'mate') openPuzzle(classicP(0), 'classic', true);
+    else if (id === 'cpu') { cpuLevel = 0; store.set('level', 0); push('cpu', 'Play the computer', { refresh: renderLevels }); }
+  }
   function refreshHome() {
     var s = store.get('save'), h = '';
     if (s && s.moves && s.mode && (s.mode === 'local' ? s.moves.length : true)) {
@@ -2454,12 +3248,19 @@ var PIECE_INFO = [
       h = '<div class="resume"><div><b>Continue your game</b><small>' + esc(what) + ' · move ' + mvs + '</small></div><button class="btn primary" data-a="resume">Continue</button></div>';
     }
     $('resume').innerHTML = h;
+    $('today').innerHTML = dailyCardHTML() + profileCardHTML();
+    $('path').innerHTML = pathHTML();
   }
   $('resume').addEventListener('click', function (e) {
     if (!e.target.closest('[data-a="resume"]')) return;
     var s = store.get('save'); if (!s) return;
-    startGame({ mode: s.mode, startFen: s.startFen, moves: s.moves, human: s.human, level: s.level, flip: s.flip });
+    startGame({ mode: s.mode, startFen: s.startFen, moves: s.moves, human: s.human, level: s.level, flip: s.flip, assisted: s.assisted });
   });
+  $('today').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-p]'); if (!b) return;
+    if (b.getAttribute('data-p') === 'daily') openPuzzle(dailyP(), 'daily', true); else openStats();
+  });
+  $('path').addEventListener('click', function (e) { var b = e.target.closest('[data-path]'); if (b) pathGo(b.getAttribute('data-path')); });
   $('modes').addEventListener('click', function (e) {
     var b = e.target.closest('[data-m]'); if (!b) return;
     var m = b.getAttribute('data-m');
@@ -2468,13 +3269,95 @@ var PIECE_INFO = [
     else if (m === 'online') push('online', 'Play online', { refresh: renderOnline });
     else push('learn', 'Learn', { refresh: renderLearn });
   });
+  function maybeWelcome() {
+    if (store.get('welcomed')) return;
+    if (P.games || store.get('save') || solvedCount()) { store.set('welcomed', 1); return; }
+    openSheet('<h3>Welcome to Open Board</h3><p>Are you new to chess?</p><div class="row">' +
+      '<button class="btn primary" data-a="new">Yes, teach me the basics</button><button class="btn" data-a="know">No, I know how to play</button></div>',
+      function (a) {
+        store.set('welcomed', 1); closeSheet(true);
+        if (a === 'new') { path.on = true; store.set('path', path); cpuLevel = 0; store.set('level', 0); refreshHome(); openGuide(); }
+        else refreshHome();
+      }, function () { store.set('welcomed', 1); });
+  }
+
+  /* ---------- settings ---------- */
+  function openSettings() { push('settings', 'Settings', { refresh: renderSettings }); }
+  function switchRow(id, on, t, sub) {
+    return '<div class="set-row"><span><b>' + t + '</b><small>' + sub + '</small></span><button class="switch" role="switch" aria-checked="' + on + '" data-set="' + id + '" aria-label="' + t + '"></button></div>';
+  }
+  function renderSettings() {
+    var h = '<div class="card">' + switchRow('sound', prefs.sound, 'Sound', 'Moves, captures, check and results') +
+      switchRow('haptics', prefs.haptics, 'Vibration', 'A short buzz on captures, check and checkmate') + '</div>';
+    h += '<div class="card"><div class="label">Appearance</div><div class="seg" role="radiogroup" aria-label="Appearance">' + ['system', 'light', 'dark'].map(function (v) {
+      return '<button role="radio" aria-checked="' + (prefs.theme === v) + '" data-themev="' + v + '">' + (v === 'system' ? 'Automatic' : v === 'light' ? 'Light' : 'Dark') + '</button>';
+    }).join('') + '</div>';
+    h += '<div class="label">Board</div><div class="swatches" role="radiogroup" aria-label="Board">' + BOARDS.map(function (b) {
+      var ok = unlocked(b), cells = '';
+      for (var i = 0; i < 8; i++) cells += '<i style="background:' + (((i + (i >> 2)) & 1) ? b.d : b.l) + '"></i>';
+      return '<button role="radio" aria-checked="' + (prefs.board === b.id) + '" data-board="' + b.id + '"' + (ok ? '' : ' disabled') + '><span class="mini">' + cells + '</span>' + esc(b.t) +
+        (ok ? '' : '<span class="lock">🔒 ' + esc(achOf(b.need).d) + '</span>') + '</button>';
+    }).join('') + '</div>';
+    h += '<div class="label">Pieces</div><div class="swatches" role="radiogroup" aria-label="Pieces">' + PIECESETS.map(function (pc) {
+      var ok = unlocked(pc), st = '--pf-w:' + pc.w + ';--ps-w:' + pc.ws + ';--pf-b:' + pc.b + ';--ps-b:' + pc.bs + ';--pd-b:' + pc.bd + ';background:' + lookOf(BOARDS, prefs.board).d;
+      return '<button role="radio" aria-checked="' + (prefs.pieces === pc.id) + '" data-pieces="' + pc.id + '"' + (ok ? '' : ' disabled') + '><span class="pcs" style="' + st + '">' + pieceHTML(2, 0) + pieceHTML(2, 1) + '</span>' + esc(pc.t) +
+        (ok ? '' : '<span class="lock">🔒 ' + esc(achOf(pc.need).d) + '</span>') + '</button>';
+    }).join('') + '</div><small class="muted">Earn achievements to unlock more boards and pieces.</small></div>';
+    h += '<div class="card"><button class="btn wide" data-set="stats">Your progress and achievements</button><button class="btn wide" data-set="path">' + (path.on ? 'Hide Getting started' : 'Show Getting started on the home screen') + '</button></div>';
+    h += '<p class="muted" style="font-size:13px">Open Board 1.1 · © 2026 AHUMUZA FITLIFE SOLUTIONS · <a href="privacy.html">Privacy policy</a> · <a href="terms.html">Terms of service</a><br>Daily and training puzzles: Lichess puzzle database (CC0).</p>';
+    $('settings-body').innerHTML = h;
+  }
+  $('settings-body').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || b.disabled) return;
+    var k = b.getAttribute('data-set');
+    if (k === 'sound' || k === 'haptics') { prefs[k] = !prefs[k]; savePrefs(); if (k === 'sound') sfx('move'); else buzz('medium'); }
+    else if (k === 'stats') { openStats(); return; }
+    else if (k === 'path') { path.on = !path.on; store.set('path', path); toast(path.on ? 'Getting started is back on the home screen' : 'Getting started is hidden'); }
+    else if (b.hasAttribute('data-themev')) { prefs.theme = b.getAttribute('data-themev'); savePrefs(); }
+    else if (b.hasAttribute('data-board')) { prefs.board = b.getAttribute('data-board'); savePrefs(); }
+    else if (b.hasAttribute('data-pieces')) { prefs.pieces = b.getAttribute('data-pieces'); savePrefs(); }
+    else return;
+    renderSettings();
+  });
+  $('settings-btn').addEventListener('click', openSettings);
+
+  /* ---------- progress screen ---------- */
+  function openStats() { push('stats', 'Your progress', { refresh: renderStats }); }
+  function stat(v, label) { return '<div class="stat"><b>' + v + '</b><small>' + label + '</small></div>'; }
+  function renderStats() {
+    var h = '<div class="statgrid">' + stat(P.rating, 'Rating vs computer') + stat(P.best, 'Best rating') + stat(P.prating, 'Puzzle rating') +
+      stat(streakNow() + ' 🔥', 'Daily streak · best ' + streak.best) + stat(solvedCount(), 'Puzzles solved') + stat(P.wins + '–' + P.losses + '–' + P.draws, 'Won–lost–drawn') + '</div>';
+    h += '<div class="card"><div class="label">Against the computer</div><table class="lvtable"><thead><tr><th>Level</th><th>Won</th><th>Lost</th><th>Drawn</th></tr></thead><tbody>' +
+      E.LEVELS.map(function (lv, i) { var r = P.lv[i]; return '<tr><td>' + lv.name + '</td><td>' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td></tr>'; }).join('') +
+      '</tbody></table><small class="muted">Online: ' + P.online + ' played, ' + P.onlineWins + ' won · Two-player games: ' + P.local + ' · Your rating changes only in games without undo or hints.</small></div>';
+    h += '<div class="card"><div class="label">Achievements · ' + Object.keys(P.ach).length + ' of ' + ACH.length + '</div><div class="achs">' + ACH.map(function (a) {
+      var on = !!P.ach[a.id], u = unlockNote(a);
+      return '<div class="ach' + (on ? ' on' : '') + '"><span class="ic" aria-hidden="true">' + a.i + '</span><b>' + esc(a.t) + '</b><small>' + esc(a.d) + (u ? '<br>Unlocks: ' + esc(u) : '') + '</small></div>';
+    }).join('') + '</div></div>';
+    $('stats-body').innerHTML = h;
+  }
+
+  /* ---------- start ---------- */
+  // The Android back button: close a sheet or promotion picker first, then walk back through the screens.
+  window.OB_BACK = function () {
+    if (modalOpen()) { closeSheet(); return; }
+    if (G && G.promo) { gameAction('cancelpromo'); return; }
+    if (nav.length > 1) goBack();
+  };
+  window.OB_JOIN = handleJoin;
+  var linkJoin = (function () { var m = /[?&]join=([A-Za-z0-9]{5})/.exec(location.search || ''); return m ? m[1].toUpperCase() : null; })();
+  if (linkJoin && STANDALONE) { try { history.replaceState({ ob: 0 }, '', location.pathname); } catch (e) { /* ignore */ } }
 
   if (STANDALONE && 'serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
     window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () { /* offline support is optional */ }); });
   }
+  P.psolved = Math.max(P.psolved, solvedCount());
+  applyLook(); checkAch(true);
   buildHome(); renderLevels();
   nav.push({ v: 'home', title: '', refresh: refreshHome }); show('home', ''); refreshHome();
-  window.__ob = { get G() { return G; }, goHome: goHome, startGame: startGame };
+  if (linkJoin) handleJoin(linkJoin); else maybeWelcome();
+  nat({ t: 'ready' });
+  window.__ob = { get G() { return G; }, get S() { return S; }, goHome: goHome, startGame: startGame, P: P, streak: streak, C: C };
 })();
 
 </script>
