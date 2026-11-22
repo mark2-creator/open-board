@@ -365,12 +365,19 @@ p { margin: 0; }
 .clock.run { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
 .clock.low.run { background: var(--danger); border-color: var(--danger); color: #fff; }
 .notice a { color: var(--accent); font-weight: 700; }
+#poster { position: fixed; inset: 0; z-index: 100; background: #001715 url(splash-poster.jpg) center / cover no-repeat; transition: opacity 0.4s; }
+#poster.out { opacity: 0; }
 
 </style>
 
 <script src="config.js"></script>
 </head>
 <body>
+<div id="poster" hidden></div>
+<script>
+  // Launch poster, shown only in the Android app (the app sets ReactNativeWebView or OB_INSETS before the page loads).
+  if (window.ReactNativeWebView || window.OB_INSETS) { document.getElementById('poster').hidden = false; window.OB_POSTER_AT = Date.now(); }
+</script>
 <div class="app">
   <header class="top" id="top" data-home="1">
     <button class="icon-btn" id="back" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
@@ -3357,6 +3364,13 @@ var PIECE_INFO = [
   nav.push({ v: 'home', title: '', refresh: refreshHome }); show('home', ''); refreshHome();
   if (linkJoin) handleJoin(linkJoin); else maybeWelcome();
   nat({ t: 'ready' });
+  if (window.OB_POSTER_AT) {
+    // keep the poster up for 2.5 s from the first frame, then fade into the game
+    setTimeout(function () {
+      var po = $('poster'); po.classList.add('out');
+      setTimeout(function () { po.hidden = true; nat({ t: 'poster-done' }); }, 450);
+    }, Math.max(0, 2500 - (Date.now() - window.OB_POSTER_AT)));
+  }
   window.__ob = { get G() { return G; }, get S() { return S; }, goHome: goHome, startGame: startGame, P: P, streak: streak, C: C };
 })();
 
