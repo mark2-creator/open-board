@@ -3343,7 +3343,7 @@ var PIECE_INFO = [
   function stat(v, label) { return '<div class="stat"><b>' + v + '</b><small>' + label + '</small></div>'; }
   function renderStats() {
     var h = '<div class="statgrid">' + stat(P.rating, 'Rating vs computer') + stat(P.best, 'Best rating') + stat(P.prating, 'Puzzle rating') +
-      stat(streakNow() + ' 🔥', 'Daily streak · best ' + streak.best) + stat(solvedCount(), 'Puzzles solved') + stat(P.wins + '–' + P.losses + '–' + P.draws, 'Won–lost–drawn') + '</div>';
+      stat(streakNow() + ' 🔥', 'Daily streak · best ' + streak.best) + stat(Math.max(P.psolved, solvedCount()), 'Puzzles solved') + stat(P.wins + '–' + P.losses + '–' + P.draws, 'Won–lost–drawn') + '</div>';
     h += '<div class="card"><div class="label">Against the computer</div><table class="lvtable"><thead><tr><th>Level</th><th>Won</th><th>Lost</th><th>Drawn</th></tr></thead><tbody>' +
       E.LEVELS.map(function (lv, i) { var r = P.lv[i]; return '<tr><td>' + lv.name + '</td><td>' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td></tr>'; }).join('') +
       '</tbody></table><small class="muted">Online: ' + P.online + ' played, ' + P.onlineWins + ' won · Two-player games: ' + P.local + ' · Your rating changes only in games without undo or hints.</small></div>';
